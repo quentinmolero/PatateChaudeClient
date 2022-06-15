@@ -3,9 +3,6 @@ use std::net::{TcpListener, TcpStream};
 use serde::{Serialize, Deserialize};
 use serde_json;
 
-#[derive(Debug, Serialize, Deserialize)]
-struct Hello {
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Subscribe {
@@ -14,52 +11,46 @@ struct Subscribe {
 
 #[derive(Debug, Serialize, Deserialize)]
 enum ClientMessage {
-    Hello(Hello),
     Subscribe(Subscribe),
+}
+
+fn transform_u32_to_array_of_u8(x:u32) -> [u8;4] {
+    let b1 : u8 = ((x >> 24) & 0xff) as u8;
+    let b2 : u8 = ((x >> 16) & 0xff) as u8;
+    let b3 : u8 = ((x >> 8) & 0xff) as u8;
+    let b4 : u8 = (x & 0xff) as u8;
+    return [b1, b2, b3, b4]
+}
+
+fn send_message(mut stream: TcpStream, message: &str) {
+    let message_size: u32 = message.len() as u32;
+    let encoded_size = &transform_u32_to_array_of_u8(message_size);
+
+    let response = stream.write(encoded_size);
+    match response {
+        Err(error) => panic!("Error writing to server: {error}"),
+        _ => {}
+    }
+
+    let response = stream.write(message.as_bytes());
+    match response {
+        Err(error) => panic!("Error writing to server: {error}"),
+        _ => {}
+    }
 }
 
 pub(crate) fn connect() {
     let stream = TcpStream::connect("localhost:7878");
     match stream {
         Ok(mut stream) => {
-            // say_hello(stream);
-            let message= "Hi!".as_bytes();
-            let response = stream.write(&message);
-            println!("response={:?}", response);
-            println!("reading={:?}", stream.read(&mut [0; 128]).unwrap());
-
-            let subscribe_message = ClientMessage::Subscribe(Subscribe {
-                name: "test".to_string(),
-            });
-
-            let serialized = serde_json::to_string(&subscribe_message);
-
-            match serialized {
-                Ok(str) => {
-                    println!("ok:{str}");
-                    let message= str.as_bytes();
-                    let response = stream.write(&message);
-                    println!("{:?}", response);
-                }
-                Err(err) => {
-                    println!("{err}")
-                }
-            }
+            say_hello(stream);
         }
         Err(err) => panic!("Cannot connect : {err}"),
     }
 }
 
 fn say_hello(mut stream: TcpStream) {
-    let hello = ClientMessage::Hello(Hello {});
-    let message = serde_json::to_string(&hello).unwrap();
-    let response = stream.write_all(message.as_bytes());
-    println!("{:?}", response);
-    let mut buffer = [0; 1024];
-    let response = stream.read(&mut buffer);
-    println!("{:?}", response);
-    let str = String::from_utf8_lossy(&buffer);
-    println!("{}", str);
+    send_message(stream, "\"Hello\"");
 }
 
 fn listen_from_stream(mut stream: TcpStream) {
