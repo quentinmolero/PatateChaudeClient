@@ -1,4 +1,5 @@
 use serde::{Serialize, Deserialize};
+use crate::challenge_message::{Challenge, ReportedChallengeResult};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct Welcome {
@@ -38,9 +39,14 @@ pub(crate) struct PublicPlayer {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub(crate) struct Challenge {
+pub(crate) struct RoundSummary {
     pub(crate) challenge: String,
-    pub(crate) chain: Vec<String>
+    pub(crate) chain: Vec<ReportedChallengeResult>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub(crate) struct EndOfGame {
+    pub(crate) leader_board: Vec<PublicPlayer>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -49,4 +55,6 @@ pub(crate) enum ServerMessage {
     SubscribeResult(SubscribeResult),
     PublicLeaderBoard(Vec<PublicPlayer>),
     Challenge(Challenge),
+    RoundSummary(RoundSummary),
+    EndOfGame(EndOfGame),
 }
