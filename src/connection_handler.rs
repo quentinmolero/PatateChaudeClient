@@ -4,15 +4,13 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use serde::{Serialize, Deserialize};
 use serde_json;
 
+use crate::client_message::{ClientMessage, Subscribe};
+use crate::server_message::ServerMessage;
+
 #[derive(Debug, Serialize, Deserialize)]
 enum ChallengeName {
     HashCash,
     RecoverSecret,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct Subscribe {
-    name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -30,62 +28,6 @@ enum ChallengeAnswer {
 struct ChallengeResult {
     name: ChallengeAnswer,
     next_target: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-enum ClientMessage {
-    Subscribe(Subscribe),
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct Welcome {
-    version: u8,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-enum SubscriptionError {
-    AlreadyRegistered,
-    InvalidName
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct SubscribeError {
-    subscription_error: SubscriptionError,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-enum Result {
-    Ok,
-    SubscribeError(SubscribeError),
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct PublicPlayer {
-    name: String,
-    stream_id: String,
-    score: i32,
-    steps: u32,
-    is_active: bool,
-    total_used_time: f64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct SubscribeResult {
-    result: Result,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct Challenge {
-    challenge: String,
-    chain: Vec<String>
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-enum ServerMessage {
-    Welcome(Welcome),
-    SubscribeResult(SubscribeResult),
-    PublicLeaderBoard(Vec<PublicPlayer>),
-    Challenge(Challenge),
 }
 
 pub(crate) fn connect() {
