@@ -1,34 +1,10 @@
 use std::io::{Read, Write};
 use std::net::{TcpStream};
 use std::time::{SystemTime, UNIX_EPOCH};
-use serde::{Serialize, Deserialize};
 use serde_json;
 
 use crate::client_message::{ClientMessage, Subscribe};
 use crate::server_message::ServerMessage;
-
-#[derive(Debug, Serialize, Deserialize)]
-enum ChallengeName {
-    HashCash,
-    RecoverSecret,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-enum ChallengeOutput {
-    HashCash(String),
-    RecoverSecret(String),
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-enum ChallengeAnswer {
-    ChallengeName(ChallengeOutput),
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct ChallengeResult {
-    name: ChallengeAnswer,
-    next_target: String,
-}
 
 pub(crate) fn connect() {
     let stream = TcpStream::connect("localhost:7878");
