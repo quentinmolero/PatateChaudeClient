@@ -11,9 +11,6 @@ pub(crate) fn connect() {
     match stream {
         Ok(stream) => {
             say_hello(&stream);
-            println!("{:?}", read_message(&stream));
-            send_username(&stream, ("Player".to_string() + &SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis().to_string()).as_str());
-            println!("{:?}", read_message(&stream));
             listen_from_stream(&stream);
         }
         Err(err) => panic!("Cannot connect : {err}"),
@@ -93,19 +90,35 @@ fn send_username(stream: &TcpStream, username: &str) {
 }
 
 fn listen_from_stream(stream: &TcpStream) {
-    loop {
+    let mut is_connection_opened = true;
+
+    while is_connection_opened {
         let message = read_message(&stream);
         println!("{:?}", message);
 
         let message_json = serde_json::from_str(&message).unwrap();
         match message_json {
+            ServerMessage::Welcome(welcome) => {
+                println!("Welcome: {:?}", welcome);
+                send_username(&stream, ("Player".to_string() + &SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis().to_string()).as_str());
+            }
+            ServerMessage::SubscribeResult(subscribe_result) => {
+                println!("Subscribe result: {:?}", subscribe_result);
+            }
             ServerMessage::PublicLeaderBoard(public_leader_board) => {
                 println!("PublicLeaderBoard: {:?}", public_leader_board);
+            }
+            ServerMessage::RoundSummary(round_summary) => {
+                println!("RoundSummary: {:?}", round_summary);
             }
             ServerMessage::Challenge(challenge) => {
                 println!("Challenge: {:?}", challenge);
             }
-            _ => {}
+            ServerMessage::EndOfGame(end_of_game) => {
+                println!("EndOfGame: {:?}", end_of_game);
+                is_connection_opened = false;
+                stream.shutdown(std::net::Shutdown::Both).unwrap();
+            }
         }
     }
 }

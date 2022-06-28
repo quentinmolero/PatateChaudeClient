@@ -24,11 +24,6 @@ pub(crate) enum Result {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub(crate) struct SubscribeResult {
-    pub(crate) result: Result,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct PublicPlayer {
     pub(crate) name: String,
     pub(crate) stream_id: String,
@@ -52,7 +47,7 @@ pub(crate) struct EndOfGame {
 #[derive(Debug, Serialize, Deserialize)]
 pub(crate) enum ServerMessage {
     Welcome(Welcome),
-    SubscribeResult(SubscribeResult),
+    SubscribeResult(Result),
     PublicLeaderBoard(Vec<PublicPlayer>),
     Challenge(Challenge),
     RoundSummary(RoundSummary),
