@@ -2,6 +2,7 @@ mod connection_handler;
 mod client_message;
 mod server_message;
 mod challenge_message;
+mod recover_secret;
 
 use std::time::{SystemTime, UNIX_EPOCH};
 use clap::{App, Arg, ArgMatches, Parser};
