@@ -6,12 +6,12 @@ use serde_json;
 use crate::client_message::{ClientMessage, Subscribe};
 use crate::server_message::ServerMessage;
 
-pub(crate) fn connect() {
-    let stream = TcpStream::connect("localhost:7878");
+pub(crate) fn connect(username: String, port: u16) {
+    let stream = TcpStream::connect("localhost:{port}".replace("{port}", &port.to_string()));
     match stream {
         Ok(stream) => {
             say_hello(&stream);
-            listen_from_stream(&stream);
+            listen_from_stream(&stream, username);
         }
         Err(err) => panic!("Cannot connect : {err}"),
     }
@@ -89,7 +89,7 @@ fn send_username(stream: &TcpStream, username: &str) {
     send_message(stream, &message_json);
 }
 
-fn listen_from_stream(stream: &TcpStream) {
+fn listen_from_stream(stream: &TcpStream, username: String) {
     let mut is_connection_opened = true;
 
     while is_connection_opened {
@@ -100,7 +100,7 @@ fn listen_from_stream(stream: &TcpStream) {
         match message_json {
             ServerMessage::Welcome(welcome) => {
                 println!("Welcome: {:?}", welcome);
-                send_username(&stream, ("Player".to_string() + &SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis().to_string()).as_str());
+                send_username(&stream, &username);
             }
             ServerMessage::SubscribeResult(subscribe_result) => {
                 println!("Subscribe result: {:?}", subscribe_result);
