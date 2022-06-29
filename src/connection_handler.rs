@@ -2,8 +2,12 @@ use std::io::{Read, Write};
 use std::net::{TcpStream};
 use std::time::{SystemTime, UNIX_EPOCH};
 use serde_json;
+use crate::challenge::Challenge;
+use crate::challenge_message::{MD5HashCashInput, RecoverSecretInput};
+use crate::challenge_message::Challenge::{MD5HashCash, RecoverSecret};
 
 use crate::client_message::{ClientMessage, Subscribe};
+use crate::md5cash_challenge::HashCash;
 use crate::server_message::ServerMessage;
 
 pub(crate) fn connect(username: String, port: u16) {
@@ -113,6 +117,16 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
             }
             ServerMessage::Challenge(challenge) => {
                 println!("Challenge: {:?}", challenge);
+                match challenge {
+                    MD5HashCash(md5_hash_cash) => {
+                        println!("MD5HashCash: {:?}", md5_hash_cash);
+                        let mut hashcash = HashCash::new(md5_hash_cash);
+                        send_message(&stream, &serde_json::to_string(&HashCash::solve(&hashcash)).unwrap());
+                    }
+                    RecoverSecret(recover_secret) => {
+                        println!("RecoverSecret: {:?}", recover_secret);
+                    }
+                }
             }
             ServerMessage::EndOfGame(end_of_game) => {
                 println!("EndOfGame: {:?}", end_of_game);

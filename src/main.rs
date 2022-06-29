@@ -2,6 +2,8 @@ mod connection_handler;
 mod client_message;
 mod server_message;
 mod challenge_message;
+mod md5cash_challenge;
+mod challenge;
 
 use std::time::{SystemTime, UNIX_EPOCH};
 use clap::{App, Arg, ArgMatches, Parser};
