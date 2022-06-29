@@ -24,7 +24,7 @@ fn entriesToHashmap(entries: Vec<Vec<String>>) -> HashMap<String, HashSet<String
                 }
 
                 let value_to_add: HashSet<String>;
-                if entriesOneEntry >= entry.iter().clone().len() - 1 {
+                if entriesOneEntry >= entry.len() - 1 {
                     value_to_add = HashSet::new();
                 }else {
                     value_to_add = generateAllSuccessorsForAnEntry(entriesOneEntry, &entry);
@@ -40,7 +40,7 @@ fn entriesToHashmap(entries: Vec<Vec<String>>) -> HashMap<String, HashSet<String
                 map.insert(oneEntry.clone(), set);
             } else {
                 let value_to_add: HashSet<String>;
-                if entriesOneEntry >= entry.iter().len() - 1 {
+                if entriesOneEntry >= entry.len() - 1 {
                     value_to_add = HashSet::new();
                 }else {
                     value_to_add = generateAllSuccessorsForAnEntry(entriesOneEntry, &entry);
@@ -60,12 +60,11 @@ fn entriesToHashmap(entries: Vec<Vec<String>>) -> HashMap<String, HashSet<String
 
 fn generateStringFromHashMap(map: &HashMap<String, HashSet<String>>) -> String {
     let mut result: String = String::new();
-    // copy map
     let mut map_copy: HashMap<String, HashSet<String>> = map.clone();
     while map_copy.len() > 0 {
         let mut elements_to_delete: Vec<String> = Vec::new();
         let mut map_elements_to_delete: Vec<String> = Vec::new();
-        for (key, value) in map_copy.iter_mut() {
+        for (key, value) in map_copy.iter() {
             if value.len() == 0 {
                 result = key.clone() + &result;
                 map_elements_to_delete.push(key.clone());
@@ -87,15 +86,7 @@ fn generateStringFromHashMap(map: &HashMap<String, HashSet<String>>) -> String {
     return result;
 }
 
-// create Vectors of Vectors of Strings
-/*let entries = vec![
-    vec!['e', 't', 'o'],
-    vec!['c', 'o'],
-    vec!['C', '\'', 't', 'o'],
-    vec!['\'', 'h', 'u'],
-    vec!['t', 'c', 'o'],
-    vec!['o', 'u'],
-];*/
+
 
 fn main() {
     let result = entriesToHashmap(vec![
@@ -112,4 +103,127 @@ fn main() {
 
     let result_generate = generateStringFromHashMap(&result);
     println!("{:?}", result_generate);
+}
+
+#[test]
+fn should_return_map_with_only_one_entry() {
+    let result = HashMap::from([
+        ("e".to_string(), HashSet::from(["t".to_string()])),
+        ("t".to_string(), HashSet::new()),
+    ]);
+    // create hashmmap with only one entry
+
+    let entries = vec![
+        vec!["e".to_string(), "t".to_string()],
+        ];
+    let hashMapResult = entriesToHashmap(entries);
+
+    assert_eq!(result, hashMapResult);
+}
+
+#[test]
+fn should_return_map_with_two_entry_not_linked() {
+    let result = HashMap::from([
+        ("e".to_string(), HashSet::from(["t".to_string()])),
+        ("t".to_string(), HashSet::new()),
+        ("f".to_string(), HashSet::from(["g".to_string()])),
+        ("g".to_string(), HashSet::new()),
+    ]);
+    // create hashmmap with only one entry
+
+    let entries = vec![
+        vec!["e".to_string(), "t".to_string()],
+        vec!["f".to_string(), "g".to_string()],
+    ];
+    let hashMapResult = entriesToHashmap(entries);
+
+    assert_eq!(result, hashMapResult);
+}
+
+#[test]
+fn should_return_map_with_two_entry_linked() {
+    let result = HashMap::from([
+        ("e".to_string(), HashSet::from(["t".to_string()])),
+        ("t".to_string(), HashSet::from(["o".to_string()])),
+        ("o".to_string(), HashSet::new()),
+    ]);
+    // create hashmmap with only one entry
+
+    let entries = vec![
+        vec!["e".to_string(), "t".to_string()],
+        vec!["t".to_string(), "o".to_string()],
+    ];
+    let hashMapResult = entriesToHashmap(entries);
+
+    assert_eq!(result, hashMapResult);
+}
+
+#[test]
+fn should_generate_string_with_hashmap_with_no_entry() {
+    let result = "";
+    let map = HashMap::from([]);
+
+    let string_generate = generateStringFromHashMap(&map);
+
+    assert_eq!(result, string_generate);
+}
+
+#[test]
+fn should_generate_string_with_hashmap_with_one_entry() {
+    let result = "t";
+    let map = HashMap::from([
+        ("t".to_string(), HashSet::new()),
+    ]);
+
+    let string_generate = generateStringFromHashMap(&map);
+
+    assert_eq!(result, string_generate);
+}
+
+#[test]
+fn should_generate_string_with_hashmap_with_two_entry_linked_by_order() {
+    let result = "to";
+    let map = HashMap::from([
+        ("t".to_string(), HashSet::from(['o'.to_string()])),
+        ("o".to_string(), HashSet::new()),
+    ]);
+
+    let string_generate = generateStringFromHashMap(&map);
+
+    assert_eq!(result, string_generate);
+}
+
+#[test]
+fn should_generate_string_with_hashmap_with_three_entry_linked_by_order() {
+    let result = "efgt";
+    let map = HashMap::from([
+        ("e".to_string(), HashSet::from(["t".to_string(), "f".to_string()])),
+        ("t".to_string(), HashSet::new()),
+        ("f".to_string(), HashSet::from(["g".to_string()])),
+        ("g".to_string(), HashSet::from(["t".to_string()])),
+    ]);
+
+    let string_generate = generateStringFromHashMap(&map);
+
+    assert_eq!(result, string_generate);
+}
+
+#[test]
+fn should_generate_string_with_hashmap_with_an_acceptance_test() {
+    let result = "c'estChou";
+    let map = HashMap::from([
+        ("c".to_string(), HashSet::from(["\'".to_string()])),
+        ("\'".to_string(), HashSet::from(["u".to_string(), "e".to_string()])),
+        ("C".to_string(), HashSet::from(["h".to_string()])),
+        ("h".to_string(), HashSet::from(["o".to_string(), "u".to_string()])),
+        ("s".to_string(), HashSet::from(["t".to_string(), "u".to_string()])),
+        ("t".to_string(), HashSet::from(["C".to_string(), "o".to_string()])),
+        ("o".to_string(), HashSet::from(["u".to_string()])),
+        ("u".to_string(), HashSet::new()),
+        ("e".to_string(), HashSet::from(["s".to_string()])),
+    ]);
+
+    let string_generate = generateStringFromHashMap(&map);
+
+    assert_eq!(result, result);
 }
