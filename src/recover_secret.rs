@@ -85,6 +85,18 @@ fn generateStringFromHashMap(map: &HashMap<String, HashSet<String>>) -> String {
 
     return result;
 }
+// add Space all the one carrac
+fn addSpace(string: &String, number_space: usize) -> String {
+    let mut string_copy: String = string.clone();
+    let mut number_space_add_plus_one: usize = 1;
+    for i in 0..number_space {
+        // add space between O to 2 carrac and between 3 to 6 carrac
+        string_copy.insert(i + number_space_add_plus_one, ' ');
+        number_space_add_plus_one += 1;
+
+    }
+    return string_copy;
+}
 
 
 
@@ -226,4 +238,40 @@ fn should_generate_string_with_hashmap_with_an_acceptance_test() {
     let string_generate = generateStringFromHashMap(&map);
 
     assert_eq!(result, result);
+}
+
+#[test]
+fn should_add_zero_space_to_string() {
+    let string_source = "pomme".to_string();
+    let number_space = 0;
+
+    let string_expected = "pomme";
+
+    let string_with_spaces_add = addSpace(&string_source, number_space);
+
+    assert_eq!(string_expected, string_with_spaces_add);
+}
+
+#[test]
+fn should_add_one_space_to_string() {
+    let string_source = "pomme".to_string();
+    let number_space = 1;
+
+    let string_expected = "p omme";
+
+    let string_with_spaces_add = addSpace(&string_source, number_space);
+
+    assert_eq!(string_expected, string_with_spaces_add);
+}
+
+#[test]
+fn should_add_three_space_to_string() {
+    let string_source = "pomme".to_string();
+    let number_space = 3;
+
+    let string_expected = "p o m me";
+
+    let string_with_spaces_add = addSpace(&string_source, number_space);
+
+    assert_eq!(string_expected, string_with_spaces_add);
 }
