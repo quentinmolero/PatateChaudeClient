@@ -2,6 +2,7 @@ use std::ptr::{eq, hash};
 use std::process::{Command, Stdio};
 use std::str::from_utf8;
 use std::sync::{Arc, LockResult, mpsc, Mutex};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 use crate::challenge::Challenge;
@@ -32,13 +33,20 @@ impl Challenge for HashCash {
         let (tx, rx): (Sender<MD5HashCashOutput>, Receiver<MD5HashCashOutput>) = mpsc::channel();
         let mut i : u64 = 0;
 
+        let mut valid = Arc::new(AtomicBool::new(false));
 
         for th in 0..threads {
+
+
             let tx = tx.clone();
             let complexity = self.input.complexity.clone();
             let message = self.input.message.clone();
             thread::spawn(move || {
                 loop {
+                    if valid.load(Ordering::Relaxed) {
+                        break;
+                    }
+
                     let hash = format!("{:016X}", i) + &message;
 
                     let result = format!("{:x}", md5::compute(hash));
@@ -52,6 +60,7 @@ impl Challenge for HashCash {
                             seed: i as u64,
                             hashcode : result
                         };
+                        valid.store(true, Ordering::Relaxed);
                         tx.send(result).unwrap();
 
                     }
@@ -60,6 +69,7 @@ impl Challenge for HashCash {
                 }
 
             });
+
         }
 
         for message in rx.iter().take(threads) {
