@@ -62,8 +62,6 @@ impl Challenge for HashCash {
             });
         }
 
-
-
         for message in rx.iter().take(threads) {
             return message;
         }
