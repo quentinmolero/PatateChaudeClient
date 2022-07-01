@@ -9,7 +9,7 @@ use crate::challenge_message::Challenge::{MD5HashCash, RecoverSecret};
 use crate::client_message::{ClientMessage, Subscribe};
 use crate::md5cash_challenge::HashCash;
 use crate::recover_secret_challenge::{Recover};
-use crate::server_message::ServerMessage;
+use crate::server_message::{PublicPlayer, ServerMessage};
 
 pub(crate) fn connect(username: String, port: u16) {
     let stream = TcpStream::connect("localhost:{port}".replace("{port}", &port.to_string()));
@@ -96,6 +96,7 @@ fn send_username(stream: &TcpStream, username: &str) {
 
 fn listen_from_stream(stream: &TcpStream, username: String) {
     let mut is_connection_opened = true;
+    let last_leaderboard= &mut Vec::<PublicPlayer>::new();
 
     while is_connection_opened {
         let message = read_message(&stream);
@@ -112,6 +113,7 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
             }
             ServerMessage::PublicLeaderBoard(public_leader_board) => {
                 println!("PublicLeaderBoard: {:?}", public_leader_board);
+                *last_leaderboard = public_leader_board;
             }
             ServerMessage::RoundSummary(round_summary) => {
                 println!("RoundSummary: {:?}", round_summary);
@@ -127,10 +129,7 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                             seed: hashcash_result.seed,
                             hashcode: hashcash_result.hashcode.to_string(),
                         });
-                        let challenge_result = ChallengeMessage::ChallengeResult(ChallengeResult {
-                            answer: hashcash_output,
-                            next_target: "".to_string()
-                        });
+                        let challenge_result = format_challenge_result(hashcash_output, last_leaderboard);
                         send_message(&stream, &serde_json::to_string(&challenge_result).unwrap());
                     }
                     RecoverSecret(recover_secret) => {
@@ -140,10 +139,7 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                         let recover_secret_output = ChallengeOutput::RecoverSecret(RecoverSecretOutput {
                             secret_sentence: recover_secret_result.secret_sentence.to_string()
                         });
-                        let challenge_result = ClientMessage::ChallengeResult(ChallengeResult {
-                            answer: recover_secret_output,
-                            next_target: "".to_string()
-                        });
+                        let challenge_result = format_challenge_result(recover_secret_output, last_leaderboard);
                         send_message(&stream, &serde_json::to_string(&challenge_result).unwrap());
                     }
                 }
@@ -155,4 +151,43 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
             }
         }
     }
+}
+
+fn format_challenge_result(challenge_output: ChallengeOutput, mut leaderboard: &mut Vec<PublicPlayer>) -> ClientMessage {
+    return ClientMessage::ChallengeResult(ChallengeResult {
+        answer: challenge_output,
+        next_target: compute_next_target(leaderboard)
+    });
+}
+
+fn compute_next_target(mut leaderboard: &mut Vec<PublicPlayer>) -> String {
+    let mut leaderboard = leaderboard;
+    leaderboard.sort_by(|a, b| b.score.cmp(&a.score));
+    return leaderboard[0].name.to_string();
+}
+
+#[test]
+fn test_say_hello() {
+    let (mut reader, mut writer) = channel();
+
+    // send_message(&writer, "\"Hello\"");
+    writer.write_all(b"\"Hello\"").unwrap();
+
+    let mut read = Vec::new();
+    reader.read_to_end(&mut read).unwrap();
+
+    assert_eq!(read, b"\"Hello\"");
+}
+
+#[test]
+fn test_transform_u32_to_array_of_u8() {
+    let x: u32 = 8;
+    let result: [u8; 4] = [0, 0, 0, 8];
+    assert_eq!(transform_u32_to_array_of_u8(x), result);
+}
+
+#[test]
+fn test_transform_array_of_u8_to_u32() {
+    let x: [u8; 4] = [0, 0, 0, 8];
+    assert_eq!(transform_array_of_u8_to_u32(x), 8);
 }
