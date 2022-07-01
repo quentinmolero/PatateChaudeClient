@@ -165,3 +165,29 @@ fn compute_next_target(mut leaderboard: &mut Vec<PublicPlayer>) -> String {
     leaderboard.sort_by(|a, b| b.score.cmp(&a.score));
     return leaderboard[0].name.to_string();
 }
+
+#[test]
+fn test_say_hello() {
+    let (mut reader, mut writer) = channel();
+
+    // send_message(&writer, "\"Hello\"");
+    writer.write_all(b"\"Hello\"").unwrap();
+
+    let mut read = Vec::new();
+    reader.read_to_end(&mut read).unwrap();
+
+    assert_eq!(read, b"\"Hello\"");
+}
+
+#[test]
+fn test_transform_u32_to_array_of_u8() {
+    let x: u32 = 8;
+    let result: [u8; 4] = [0, 0, 0, 8];
+    assert_eq!(transform_u32_to_array_of_u8(x), result);
+}
+
+#[test]
+fn test_transform_array_of_u8_to_u32() {
+    let x: [u8; 4] = [0, 0, 0, 8];
+    assert_eq!(transform_array_of_u8_to_u32(x), 8);
+}
