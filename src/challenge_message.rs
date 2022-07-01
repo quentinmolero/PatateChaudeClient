@@ -61,3 +61,8 @@ pub(crate) struct ReportedChallengeResult {
     pub(crate) name: String,
     pub(crate) value: ChallengeValue,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub(crate) enum ChallengeMessage {
+    ChallengeResult(ChallengeResult),
+}

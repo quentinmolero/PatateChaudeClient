@@ -3,7 +3,7 @@ use std::net::{TcpStream};
 use std::time::{SystemTime, UNIX_EPOCH};
 use serde_json;
 use crate::challenge::Challenge;
-use crate::challenge_message::{ChallengeOutput, MD5HashCashInput, MD5HashCashOutput, RecoverSecretInput, RecoverSecretOutput};
+use crate::challenge_message::{ChallengeMessage, ChallengeOutput, ChallengeResult, MD5HashCashInput, MD5HashCashOutput, RecoverSecretInput, RecoverSecretOutput};
 use crate::challenge_message::Challenge::{MD5HashCash, RecoverSecret};
 
 use crate::client_message::{ClientMessage, Subscribe};
@@ -38,7 +38,7 @@ fn send_message(mut stream: &TcpStream, message: &str) {
     let message_size: u32 = message.len() as u32;
     let encoded_size = &transform_u32_to_array_of_u8(message_size);
 
-    println!("Sending message \"{message}\" of length {message_size}", message=message, message_size=message_size);
+    // println!("Sending message \"{message}\" of length {message_size}", message=message, message_size=message_size);
 
     let response = stream.write(encoded_size);
     match response {
@@ -127,7 +127,11 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                             seed: hashcash_result.seed,
                             hashcode: hashcash_result.hashcode.to_string(),
                         });
-                        send_message(&stream, &serde_json::to_string(&hashcash_output).unwrap());
+                        let challenge_result = ChallengeMessage::ChallengeResult(ChallengeResult {
+                            answer: hashcash_output,
+                            next_target: "".to_string()
+                        });
+                        send_message(&stream, &serde_json::to_string(&challenge_result).unwrap());
                     }
                     RecoverSecret(recover_secret) => {
                         println!("RecoverSecret: {:?}", recover_secret);
@@ -136,7 +140,11 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                         let recover_secret_output = ChallengeOutput::RecoverSecret(RecoverSecretOutput {
                             secret_sentence: recover_secret_result.secret_sentence.to_string()
                         });
-                        send_message(&stream, &serde_json::to_string(&recover_secret_output).unwrap());
+                        let challenge_result = ClientMessage::ChallengeResult(ChallengeResult {
+                            answer: recover_secret_output,
+                            next_target: "".to_string()
+                        });
+                        send_message(&stream, &serde_json::to_string(&challenge_result).unwrap());
                     }
                 }
             }
