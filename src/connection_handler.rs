@@ -3,11 +3,12 @@ use std::net::{TcpStream};
 use std::time::{SystemTime, UNIX_EPOCH};
 use serde_json;
 use crate::challenge::Challenge;
-use crate::challenge_message::{ChallengeOutput, MD5HashCashInput, MD5HashCashOutput, RecoverSecretInput};
+use crate::challenge_message::{ChallengeOutput, MD5HashCashInput, MD5HashCashOutput, RecoverSecretInput, RecoverSecretOutput};
 use crate::challenge_message::Challenge::{MD5HashCash, RecoverSecret};
 
 use crate::client_message::{ClientMessage, Subscribe};
 use crate::md5cash_challenge::HashCash;
+use crate::recover_secret_challenge::{Recover};
 use crate::server_message::ServerMessage;
 
 pub(crate) fn connect(username: String, port: u16) {
@@ -130,6 +131,12 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                     }
                     RecoverSecret(recover_secret) => {
                         println!("RecoverSecret: {:?}", recover_secret);
+                        let mut recover_secret = Recover::new(recover_secret);
+                        let mut recover_secret_result = &Recover::solve(&recover_secret);
+                        let recover_secret_output = ChallengeOutput::RecoverSecret(RecoverSecretOutput {
+                            secret_sentence: recover_secret_result.secret_sentence.to_string()
+                        });
+                        send_message(&stream, &serde_json::to_string(&recover_secret_output).unwrap());
                     }
                 }
             }

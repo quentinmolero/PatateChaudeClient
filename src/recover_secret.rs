@@ -10,7 +10,7 @@ fn generateAllSuccessorsForAnEntry(indexEntry: usize, entry: &Vec<String>) -> Ha
 }
 
 
-fn entriesToHashmap(entries: Vec<Vec<String>>) -> HashMap<String, HashSet<String>> {
+pub(crate) fn entriesToHashmap(entries: Vec<Vec<String>>) -> HashMap<String, HashSet<String>> {
     let mut map: HashMap<String, HashSet<String>> = HashMap::new();
     // iterate on entries with key and value
     for entry in entries {
@@ -58,7 +58,7 @@ fn entriesToHashmap(entries: Vec<Vec<String>>) -> HashMap<String, HashSet<String
     return map;
 }
 
-fn generateStringFromHashMap(map: &HashMap<String, HashSet<String>>) -> String {
+pub(crate) fn generateStringFromHashMap(map: &HashMap<String, HashSet<String>>) -> String {
     let mut result: String = String::new();
     let mut map_copy: HashMap<String, HashSet<String>> = map.clone();
     while map_copy.len() > 0 {
@@ -86,7 +86,7 @@ fn generateStringFromHashMap(map: &HashMap<String, HashSet<String>>) -> String {
     return result;
 }
 // add Space all the one carrac
-fn addSpace(string: &String, number_space: usize) -> String {
+pub(crate) fn addSpace(string: &String, number_space: usize) -> String {
     let mut string_copy: String = string.clone();
     let mut number_space_add_plus_one: usize = 1;
     for i in 0..number_space {

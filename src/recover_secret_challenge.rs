@@ -1,10 +1,41 @@
-struct RecoverSecretChallenge {
-    word_count: usize,
-    letters: String,
-    tuple_sizes: Vec<usize>,
+use crate::challenge::Challenge;
+use crate::challenge_message::{RecoverSecretInput, RecoverSecretOutput};
+use crate::recover_secret::{addSpace, entriesToHashmap, generateStringFromHashMap};
+
+pub(crate) struct Recover {
+    input: RecoverSecretInput,
 }
 
-fn recover_secret_challenge_to_entries(recover_secret_challenge: RecoverSecretChallenge) -> Vec<Vec<String>> {
+impl Challenge for Recover {
+    type Input = RecoverSecretInput;
+    type Output = RecoverSecretOutput;
+
+    fn name() -> String {
+        String::from("Recover")
+    }
+
+    fn new(input: Self::Input) -> Recover {
+        Recover {
+            input,
+        }
+    }
+
+    fn solve(&self) -> RecoverSecretOutput {
+        let entries = recover_secret_challenge_to_entries(RecoverSecretInput { word_count: self.input.word_count.clone(), letters: self.input.letters.clone(), tuple_sizes: self.input.tuple_sizes.clone() });
+        let map = entriesToHashmap(entries);
+        let result = generateStringFromHashMap(&map);
+        let result_space = addSpace(&result, self.input.word_count);
+        return RecoverSecretOutput {
+            secret_sentence: result_space.to_string(),
+        };
+    }
+
+    fn verify(&self, answer: Self::Output) -> bool {
+        todo!()
+    }
+}
+
+fn recover_secret_challenge_to_entries(recover_secret_challenge: RecoverSecretInput) -> Vec<Vec<String>> {
     let mut entries: Vec<Vec<String>> = Vec::new();
     let letters_split = recover_secret_challenge.letters.split("");
     let letters_vec = letters_split.collect::<Vec<&str>>();
@@ -23,7 +54,7 @@ fn recover_secret_challenge_to_entries(recover_secret_challenge: RecoverSecretCh
 
 #[test]
 fn should_return_empty_entries_because_empty_tuple() {
-    let recover_secret = RecoverSecretChallenge { word_count: 1, letters: "zFSZPdsYveFSIELYQ9FwIs6NqB3wnkjoect1z".to_string(), tuple_sizes: Vec::from([])};
+    let recover_secret = RecoverSecretInput { word_count: 1, letters: "zFSZPdsYveFSIELYQ9FwIs6NqB3wnkjoect1z".to_string(), tuple_sizes: Vec::from([])};
     let result_expected: Vec<Vec<String>> = Vec::from([]);
 
     let result = recover_secret_challenge_to_entries(recover_secret);
@@ -34,7 +65,7 @@ fn should_return_empty_entries_because_empty_tuple() {
 
 #[test]
 fn should_map_complexe_recover_secret_entry_to_entries() {
-    let recover_secret = RecoverSecretChallenge {word_count: 1, letters: "zFSZPdsYveFSIELYQ9FwIs6NqB3wnkjoect1z".to_string(), tuple_sizes: Vec::from([9, 8, 8, 7, 5])};
+    let recover_secret = RecoverSecretInput {word_count: 1, letters: "zFSZPdsYveFSIELYQ9FwIs6NqB3wnkjoect1z".to_string(), tuple_sizes: Vec::from([9, 8, 8, 7, 5])};
     let result_expected: Vec<Vec<String>> = Vec::from([
         Vec::from(["z".to_string(),"F".to_string(),"S".to_string(),'Z'.to_string(),'P'.to_string(),'d'.to_string(), 's'.to_string(), 'Y'.to_string(),'v'.to_string()]),
         Vec::from(['e'.to_string(),'F'.to_string(),'S'.to_string(),'I'.to_string(),'E'.to_string(),'L'.to_string(),'Y'.to_string(),'Q'.to_string()]),
