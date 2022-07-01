@@ -36,7 +36,7 @@ impl Challenge for HashCash {
         let mut valid = Arc::new(AtomicBool::new(false));
 
         for th in 0..threads {
-
+            let valid = valid.clone();
 
             let tx = tx.clone();
             let complexity = self.input.complexity.clone();
