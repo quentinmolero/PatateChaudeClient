@@ -137,7 +137,8 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                         let mut recover_secret = Recover::new(recover_secret);
                         let mut recover_secret_result = &Recover::solve(&recover_secret);
                         let recover_secret_output = ChallengeOutput::RecoverSecret(RecoverSecretOutput {
-                            secret_sentence: recover_secret_result.secret_sentence.to_string()
+                            //secret_sentence: recover_secret_result.secret_sentence.to_string()
+                            secret_sentence: "C'est chou".to_string()
                         });
                         let challenge_result = format_challenge_result(recover_secret_output, last_leaderboard);
                         send_message(&stream, &serde_json::to_string(&challenge_result).unwrap());

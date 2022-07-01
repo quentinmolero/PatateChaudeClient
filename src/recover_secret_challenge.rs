@@ -24,9 +24,9 @@ impl Challenge for Recover {
         let entries = recover_secret_challenge_to_entries(RecoverSecretInput { word_count: self.input.word_count.clone(), letters: self.input.letters.clone(), tuple_sizes: self.input.tuple_sizes.clone() });
         let map = entriesToHashmap(entries);
         let result = generateStringFromHashMap(&map);
-        let result_space = addSpace(&result, self.input.word_count);
+        //let result_space = addSpace(&result, self.input.word_count);
         return RecoverSecretOutput {
-            secret_sentence: result_space.to_string(),
+            secret_sentence: result.to_string(),
         };
     }
 

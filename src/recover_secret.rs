@@ -1,5 +1,9 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
+use crate::challenge::Challenge;
+use crate::challenge_message::ChallengeOutput::RecoverSecret;
+use crate::challenge_message::RecoverSecretInput;
+use crate::recover_secret_challenge::Recover;
 
 fn generateAllSuccessorsForAnEntry(indexEntry: usize, entry: &Vec<String>) -> HashSet<String> {
     let mut successors: HashSet<String> = HashSet::new();
@@ -274,4 +278,36 @@ fn should_add_three_space_to_string() {
     let string_with_spaces_add = addSpace(&string_source, number_space);
 
     assert_eq!(string_expected, string_with_spaces_add);
+}
+
+#[test]
+fn should_return_right_response_for_complexity_0() {
+    let recover_secret_input = RecoverSecretInput {
+        word_count: 2,
+        letters: "'e otcouCesc's ost cuC'eu'etch".to_string(),
+        tuple_sizes: [4, 4, 4, 4, 5, 4, 5].to_vec(),
+    };
+
+    let mut recover_secret = Recover::new(recover_secret_input);
+    let mut recover_secret_result = &Recover::solve(&recover_secret);
+
+    let recover_secret_expected = "c'est Chou".to_string();
+
+    assert_eq!(*recover_secret_result.secret_sentence, recover_secret_expected);
+}
+
+#[test]
+fn should_return_right_response_for_complexity_0_test_reamde() {
+    let recover_secret_input = RecoverSecretInput {
+        word_count: 2,
+        letters: "t cCehuCethoCeschouC'schout h".to_string(),
+        tuple_sizes: [3, 4, 5, 7, 7, 3].to_vec(),
+    };
+
+    let mut recover_secret = Recover::new(recover_secret_input);
+    let mut recover_secret_result = &Recover::solve(&recover_secret);
+
+    let recover_secret_expected = "c'est Chou".to_string();
+
+    assert_eq!(*recover_secret_result.secret_sentence, recover_secret_expected);
 }
