@@ -3,7 +3,7 @@ use std::net::{TcpStream};
 use std::time::{SystemTime, UNIX_EPOCH};
 use serde_json;
 use crate::challenge::Challenge;
-use crate::challenge_message::{MD5HashCashInput, RecoverSecretInput};
+use crate::challenge_message::{ChallengeOutput, MD5HashCashInput, MD5HashCashOutput, RecoverSecretInput};
 use crate::challenge_message::Challenge::{MD5HashCash, RecoverSecret};
 
 use crate::client_message::{ClientMessage, Subscribe};
@@ -37,7 +37,7 @@ fn send_message(mut stream: &TcpStream, message: &str) {
     let message_size: u32 = message.len() as u32;
     let encoded_size = &transform_u32_to_array_of_u8(message_size);
 
-    // println!("Sending message \"{message}\" of length {message_size}", message=message, message_size=message_size);
+    println!("Sending message \"{message}\" of length {message_size}", message=message, message_size=message_size);
 
     let response = stream.write(encoded_size);
     match response {
@@ -98,7 +98,7 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
 
     while is_connection_opened {
         let message = read_message(&stream);
-        println!("{:?}", message);
+        println!("Message: {:?}", message);
 
         let message_json = serde_json::from_str(&message).unwrap();
         match message_json {
@@ -121,7 +121,12 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                     MD5HashCash(md5_hash_cash) => {
                         println!("MD5HashCash: {:?}", md5_hash_cash);
                         let mut hashcash = HashCash::new(md5_hash_cash);
-                        send_message(&stream, &serde_json::to_string(&HashCash::solve(&hashcash)).unwrap());
+                        let mut hashcash_result = &HashCash::solve(&hashcash);
+                        let hashcash_output = ChallengeOutput::MD5HashCash(MD5HashCashOutput {
+                            seed: hashcash_result.seed,
+                            hashcode: hashcash_result.hashcode.to_string(),
+                        });
+                        send_message(&stream, &serde_json::to_string(&hashcash_output).unwrap());
                     }
                     RecoverSecret(recover_secret) => {
                         println!("RecoverSecret: {:?}", recover_secret);
