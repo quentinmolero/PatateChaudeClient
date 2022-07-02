@@ -1,6 +1,6 @@
 use crate::challenge::Challenge;
 use crate::challenge_message::{RecoverSecretInput, RecoverSecretOutput};
-use crate::recover_secret::{addSpace, entriesToHashmap, generateStringFromHashMap};
+use crate::recover_secret::{add_space, entries_to_hashmap, generate_string_from_hashmap};
 
 pub(crate) struct Recover {
     input: RecoverSecretInput,
@@ -22,15 +22,15 @@ impl Challenge for Recover {
 
     fn solve(&self) -> RecoverSecretOutput {
         let entries = recover_secret_challenge_to_entries(RecoverSecretInput { word_count: self.input.word_count.clone(), letters: self.input.letters.clone(), tuple_sizes: self.input.tuple_sizes.clone() });
-        let map = entriesToHashmap(entries);
-        let result = generateStringFromHashMap(&map);
+        let map = entries_to_hashmap(entries);
+        let result = generate_string_from_hashmap(&map);
         //let result_space = addSpace(&result, self.input.word_count);
         return RecoverSecretOutput {
             secret_sentence: result.to_string(),
         };
     }
 
-    fn verify(&self, answer: Self::Output) -> bool {
+    fn verify(&self, _: Self::Output) -> bool {
         todo!()
     }
 }

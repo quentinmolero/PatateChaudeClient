@@ -1,9 +1,8 @@
 use std::io::{Read, Write};
 use std::net::{TcpStream};
-use std::time::{SystemTime, UNIX_EPOCH};
 use serde_json;
 use crate::challenge::Challenge;
-use crate::challenge_message::{ChallengeMessage, ChallengeOutput, ChallengeResult, MD5HashCashInput, MD5HashCashOutput, RecoverSecretInput, RecoverSecretOutput};
+use crate::challenge_message::{ChallengeOutput, ChallengeResult, MD5HashCashOutput, RecoverSecretOutput};
 use crate::challenge_message::Challenge::{MD5HashCash, RecoverSecret};
 
 use crate::client_message::{ClientMessage, Subscribe};
@@ -123,8 +122,8 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                 match challenge {
                     MD5HashCash(md5_hash_cash) => {
                         println!("MD5HashCash: {:?}", md5_hash_cash);
-                        let mut hashcash = HashCash::new(md5_hash_cash);
-                        let mut hashcash_result = &HashCash::solve(&hashcash);
+                        let hashcash = HashCash::new(md5_hash_cash);
+                        let hashcash_result = &HashCash::solve(&hashcash);
                         let hashcash_output = ChallengeOutput::MD5HashCash(MD5HashCashOutput {
                             seed: hashcash_result.seed,
                             hashcode: hashcash_result.hashcode.to_string(),
@@ -134,8 +133,8 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                     }
                     RecoverSecret(recover_secret) => {
                         println!("RecoverSecret: {:?}", recover_secret);
-                        let mut recover_secret = Recover::new(recover_secret);
-                        let mut recover_secret_result = &Recover::solve(&recover_secret);
+                        let recover_secret = Recover::new(recover_secret);
+                        let recover_secret_result = &Recover::solve(&recover_secret);
                         let recover_secret_output = ChallengeOutput::RecoverSecret(RecoverSecretOutput {
                             //secret_sentence: recover_secret_result.secret_sentence.to_string()
                             secret_sentence: "C'est chou".to_string()
@@ -154,15 +153,15 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
     }
 }
 
-fn format_challenge_result(challenge_output: ChallengeOutput, mut leaderboard: &mut Vec<PublicPlayer>) -> ClientMessage {
+fn format_challenge_result(challenge_output: ChallengeOutput, leaderboard: &mut Vec<PublicPlayer>) -> ClientMessage {
     return ClientMessage::ChallengeResult(ChallengeResult {
         answer: challenge_output,
         next_target: compute_next_target(leaderboard)
     });
 }
 
-fn compute_next_target(mut leaderboard: &mut Vec<PublicPlayer>) -> String {
-    let mut leaderboard = leaderboard;
+fn compute_next_target(leaderboard: &mut Vec<PublicPlayer>) -> String {
+    let leaderboard = leaderboard;
     leaderboard.sort_by(|a, b| b.score.cmp(&a.score));
     return leaderboard[0].name.to_string();
 }

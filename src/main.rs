@@ -8,7 +8,7 @@ mod recover_secret;
 mod recover_secret_challenge;
 
 use std::time::{SystemTime, UNIX_EPOCH};
-use clap::{App, Arg, ArgMatches, Parser};
+use clap::{App, Arg, ArgMatches};
 
 fn main() {
     let args = App::new("patate_chaude_client")

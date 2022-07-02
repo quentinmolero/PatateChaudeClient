@@ -1,37 +1,34 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
 use crate::challenge::Challenge;
-use crate::challenge_message::ChallengeOutput::RecoverSecret;
-use crate::challenge_message::RecoverSecretInput;
-use crate::recover_secret_challenge::Recover;
 
-fn generateAllSuccessorsForAnEntry(indexEntry: usize, entry: &Vec<String>) -> HashSet<String> {
+fn generate_all_successors_for_an_entry(index_entry: usize, entry: &Vec<String>) -> HashSet<String> {
     let mut successors: HashSet<String> = HashSet::new();
-    for i in (indexEntry + 1)..entry.len() {
+    for i in (index_entry + 1)..entry.len() {
         successors.insert(entry[i].clone());
     }
     return successors;
 }
 
 
-pub(crate) fn entriesToHashmap(entries: Vec<Vec<String>>) -> HashMap<String, HashSet<String>> {
+pub(crate) fn entries_to_hashmap(entries: Vec<Vec<String>>) -> HashMap<String, HashSet<String>> {
     let mut map: HashMap<String, HashSet<String>> = HashMap::new();
     // iterate on entries with key and value
     for entry in entries {
-        for (entriesOneEntry, oneEntry) in entry.iter().enumerate() {
-            if map.contains_key(oneEntry) {
+        for (entries_one_entry, one_entry) in entry.iter().enumerate() {
+            if map.contains_key(one_entry) {
                 let value_present: HashSet<String>;
-                if map.contains_key(oneEntry) {
-                    value_present = map.get(oneEntry).unwrap().clone();
+                if map.contains_key(one_entry) {
+                    value_present = map.get(one_entry).unwrap().clone();
                 }else {
                     value_present = HashSet::new();
                 }
 
                 let value_to_add: HashSet<String>;
-                if entriesOneEntry >= entry.len() - 1 {
+                if entries_one_entry >= entry.len() - 1 {
                     value_to_add = HashSet::new();
                 }else {
-                    value_to_add = generateAllSuccessorsForAnEntry(entriesOneEntry, &entry);
+                    value_to_add = generate_all_successors_for_an_entry(entries_one_entry, &entry);
                 }
 
                 let mut set: HashSet<String> = HashSet::new();
@@ -41,19 +38,19 @@ pub(crate) fn entriesToHashmap(entries: Vec<Vec<String>>) -> HashMap<String, Has
                 value_present.iter().for_each(|value| {
                     set.insert(value.clone());
                 });
-                map.insert(oneEntry.clone(), set);
+                map.insert(one_entry.clone(), set);
             } else {
                 let value_to_add: HashSet<String>;
-                if entriesOneEntry >= entry.len() - 1 {
+                if entries_one_entry >= entry.len() - 1 {
                     value_to_add = HashSet::new();
                 }else {
-                    value_to_add = generateAllSuccessorsForAnEntry(entriesOneEntry, &entry);
+                    value_to_add = generate_all_successors_for_an_entry(entries_one_entry, &entry);
                 }
                 let mut set: HashSet<String> = HashSet::new();
                 value_to_add.iter().for_each(|value| {
                     set.insert(value.clone());
                 });
-                map.insert(oneEntry.clone(), set);
+                map.insert(one_entry.clone(), set);
 
             }
         }
@@ -62,7 +59,7 @@ pub(crate) fn entriesToHashmap(entries: Vec<Vec<String>>) -> HashMap<String, Has
     return map;
 }
 
-pub(crate) fn generateStringFromHashMap(map: &HashMap<String, HashSet<String>>) -> String {
+pub(crate) fn generate_string_from_hashmap(map: &HashMap<String, HashSet<String>>) -> String {
     let mut result: String = String::new();
     let mut map_copy: HashMap<String, HashSet<String>> = map.clone();
     while map_copy.len() > 0 {
@@ -79,7 +76,7 @@ pub(crate) fn generateStringFromHashMap(map: &HashMap<String, HashSet<String>>) 
             map_copy.remove(key);
         });
         elements_to_delete.iter().for_each(|key| {
-            map_copy.iter_mut().for_each(|(k, v)| {
+            map_copy.iter_mut().for_each(|(_, v)| {
                 if v.contains(key) {
                     v.remove(key);
                 }
@@ -90,7 +87,7 @@ pub(crate) fn generateStringFromHashMap(map: &HashMap<String, HashSet<String>>) 
     return result;
 }
 // add Space all the one carrac
-pub(crate) fn addSpace(string: &String, number_space: usize) -> String {
+pub(crate) fn add_space(string: &String, number_space: usize) -> String {
     let mut string_copy: String = string.clone();
     let mut number_space_add_plus_one: usize = 1;
     for i in 0..number_space {
@@ -102,24 +99,22 @@ pub(crate) fn addSpace(string: &String, number_space: usize) -> String {
     return string_copy;
 }
 
-
-
-fn main() {
-    let result = entriesToHashmap(vec![
-        vec!["e".to_string(), "t".to_string(), "o".to_string().to_string()],
-        vec!["c".to_string(), "o".to_string()],
-        vec!["C".to_string(), "\'".to_string(), "t".to_string(), "o".to_string()],
-        vec!["\'".to_string(), "h".to_string(), "u".to_string()],
-        vec!["t".to_string(), "c".to_string(), "o".to_string()],
-        vec!["o".to_string(), "u".to_string()],
-        vec!["s".to_string(), "c".to_string()],
-    ]);
-
-    println!("{:?}", result);
-
-    let result_generate = generateStringFromHashMap(&result);
-    println!("{:?}", result_generate);
-}
+// fn main() {
+//     let result = entries_to_hashmap(vec![
+//         vec!["e".to_string(), "t".to_string(), "o".to_string().to_string()],
+//         vec!["c".to_string(), "o".to_string()],
+//         vec!["C".to_string(), "\'".to_string(), "t".to_string(), "o".to_string()],
+//         vec!["\'".to_string(), "h".to_string(), "u".to_string()],
+//         vec!["t".to_string(), "c".to_string(), "o".to_string()],
+//         vec!["o".to_string(), "u".to_string()],
+//         vec!["s".to_string(), "c".to_string()],
+//     ]);
+//
+//     println!("{:?}", result);
+//
+//     let result_generate = generate_string_from_hashmap(&result);
+//     println!("{:?}", result_generate);
+// }
 
 #[test]
 fn should_return_map_with_only_one_entry() {
@@ -132,9 +127,9 @@ fn should_return_map_with_only_one_entry() {
     let entries = vec![
         vec!["e".to_string(), "t".to_string()],
         ];
-    let hashMapResult = entriesToHashmap(entries);
+    let hashmap_result = entries_to_hashmap(entries);
 
-    assert_eq!(result, hashMapResult);
+    assert_eq!(result, hashmap_result);
 }
 
 #[test]
@@ -151,9 +146,9 @@ fn should_return_map_with_two_entry_not_linked() {
         vec!["e".to_string(), "t".to_string()],
         vec!["f".to_string(), "g".to_string()],
     ];
-    let hashMapResult = entriesToHashmap(entries);
+    let hashmap_result = entries_to_hashmap(entries);
 
-    assert_eq!(result, hashMapResult);
+    assert_eq!(result, hashmap_result);
 }
 
 #[test]
@@ -169,9 +164,9 @@ fn should_return_map_with_two_entry_linked() {
         vec!["e".to_string(), "t".to_string()],
         vec!["t".to_string(), "o".to_string()],
     ];
-    let hashMapResult = entriesToHashmap(entries);
+    let hashmap_result = entries_to_hashmap(entries);
 
-    assert_eq!(result, hashMapResult);
+    assert_eq!(result, hashmap_result);
 }
 
 #[test]
@@ -179,7 +174,7 @@ fn should_generate_string_with_hashmap_with_no_entry() {
     let result = "";
     let map = HashMap::from([]);
 
-    let string_generate = generateStringFromHashMap(&map);
+    let string_generate = generate_string_from_hashmap(&map);
 
     assert_eq!(result, string_generate);
 }
@@ -191,7 +186,7 @@ fn should_generate_string_with_hashmap_with_one_entry() {
         ("t".to_string(), HashSet::new()),
     ]);
 
-    let string_generate = generateStringFromHashMap(&map);
+    let string_generate = generate_string_from_hashmap(&map);
 
     assert_eq!(result, string_generate);
 }
@@ -204,7 +199,7 @@ fn should_generate_string_with_hashmap_with_two_entry_linked_by_order() {
         ("o".to_string(), HashSet::new()),
     ]);
 
-    let string_generate = generateStringFromHashMap(&map);
+    let string_generate = generate_string_from_hashmap(&map);
 
     assert_eq!(result, string_generate);
 }
@@ -219,7 +214,7 @@ fn should_generate_string_with_hashmap_with_three_entry_linked_by_order() {
         ("g".to_string(), HashSet::from(["t".to_string()])),
     ]);
 
-    let string_generate = generateStringFromHashMap(&map);
+    let string_generate = generate_string_from_hashmap(&map);
 
     assert_eq!(result, string_generate);
 }
@@ -239,7 +234,7 @@ fn should_generate_string_with_hashmap_with_an_acceptance_test() {
         ("e".to_string(), HashSet::from(["s".to_string()])),
     ]);
 
-    let string_generate = generateStringFromHashMap(&map);
+    let string_generate = generate_string_from_hashmap(&map);
 
     assert_eq!(result, result);
 }
@@ -251,7 +246,7 @@ fn should_add_zero_space_to_string() {
 
     let string_expected = "pomme";
 
-    let string_with_spaces_add = addSpace(&string_source, number_space);
+    let string_with_spaces_add = add_space(&string_source, number_space);
 
     assert_eq!(string_expected, string_with_spaces_add);
 }
@@ -263,7 +258,7 @@ fn should_add_one_space_to_string() {
 
     let string_expected = "p omme";
 
-    let string_with_spaces_add = addSpace(&string_source, number_space);
+    let string_with_spaces_add = add_space(&string_source, number_space);
 
     assert_eq!(string_expected, string_with_spaces_add);
 }
@@ -275,21 +270,21 @@ fn should_add_three_space_to_string() {
 
     let string_expected = "p o m me";
 
-    let string_with_spaces_add = addSpace(&string_source, number_space);
+    let string_with_spaces_add = add_space(&string_source, number_space);
 
     assert_eq!(string_expected, string_with_spaces_add);
 }
 
 #[test]
 fn should_return_right_response_for_complexity_0() {
-    let recover_secret_input = RecoverSecretInput {
+    let recover_secret_input = crate::challenge_message::RecoverSecretInput {
         word_count: 2,
         letters: "'e otcouCesc's ost cuC'eu'etch".to_string(),
         tuple_sizes: [4, 4, 4, 4, 5, 4, 5].to_vec(),
     };
 
-    let mut recover_secret = Recover::new(recover_secret_input);
-    let mut recover_secret_result = &Recover::solve(&recover_secret);
+    let mut recover_secret = crate::recover_secret_challenge::Recover::new(recover_secret_input);
+    let mut recover_secret_result = &crate::recover_secret_challenge::Recover::solve(&recover_secret);
 
     let recover_secret_expected = "c'est Chou".to_string();
 
@@ -298,14 +293,14 @@ fn should_return_right_response_for_complexity_0() {
 
 #[test]
 fn should_return_right_response_for_complexity_0_test_reamde() {
-    let recover_secret_input = RecoverSecretInput {
+    let recover_secret_input = crate::challenge_message::RecoverSecretInput {
         word_count: 2,
         letters: "t cCehuCethoCeschouC'schout h".to_string(),
         tuple_sizes: [3, 4, 5, 7, 7, 3].to_vec(),
     };
 
-    let mut recover_secret = Recover::new(recover_secret_input);
-    let mut recover_secret_result = &Recover::solve(&recover_secret);
+    let mut recover_secret = crate::recover_secret_challenge::Recover::new(recover_secret_input);
+    let mut recover_secret_result = &crate::recover_secret_challenge::Recover::solve(&recover_secret);
 
     let recover_secret_expected = "c'est Chou".to_string();
 
