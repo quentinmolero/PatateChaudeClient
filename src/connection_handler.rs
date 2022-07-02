@@ -37,7 +37,7 @@ fn send_message(mut stream: &TcpStream, message: &str) {
     let message_size: u32 = message.len() as u32;
     let encoded_size = &transform_u32_to_array_of_u8(message_size);
 
-    // println!("Sending message \"{message}\" of length {message_size}", message=message, message_size=message_size);
+    println!("Sending message \"{message}\" of length {message_size}", message=message, message_size=message_size);
 
     let response = stream.write(encoded_size);
     match response {
@@ -77,7 +77,7 @@ fn read_message(mut stream: &TcpStream) -> String {
     }
 
     let message = String::from_utf8_lossy(&buffer);
-    // println!("Received message \"{message}\" of length {message_size}", message = message, message_size = length);
+    println!("Received message \"{message}\" of length {message_size}", message = message, message_size = length);
     return message.to_string();
 }
 
@@ -111,11 +111,11 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                 println!("Subscribe result: {:?}", subscribe_result);
             }
             ServerMessage::PublicLeaderBoard(public_leader_board) => {
-                println!("PublicLeaderBoard: {:?}", public_leader_board);
+                //println!("PublicLeaderBoard: {:?}", public_leader_board);
                 *last_leaderboard = public_leader_board;
             }
             ServerMessage::RoundSummary(round_summary) => {
-                println!("RoundSummary: {:?}", round_summary);
+                //println!("RoundSummary: {:?}", round_summary);
             }
             ServerMessage::Challenge(challenge) => {
                 println!("Challenge: {:?}", challenge);
@@ -136,8 +136,8 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                         let recover_secret = Recover::new(recover_secret);
                         let recover_secret_result = &Recover::solve(&recover_secret);
                         let recover_secret_output = ChallengeOutput::RecoverSecret(RecoverSecretOutput {
-                            //secret_sentence: recover_secret_result.secret_sentence.to_string()
-                            secret_sentence: "C'est chou".to_string()
+                            secret_sentence: recover_secret_result.secret_sentence.to_string()
+                            //secret_sentence: "C'est chou".to_string()
                         });
                         let challenge_result = format_challenge_result(recover_secret_output, last_leaderboard);
                         send_message(&stream, &serde_json::to_string(&challenge_result).unwrap());
