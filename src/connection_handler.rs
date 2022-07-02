@@ -168,19 +168,6 @@ fn compute_next_target(mut leaderboard: &mut Vec<PublicPlayer>) -> String {
 }
 
 #[test]
-fn test_say_hello() {
-    let (mut reader, mut writer) = channel();
-
-    // send_message(&writer, "\"Hello\"");
-    writer.write_all(b"\"Hello\"").unwrap();
-
-    let mut read = Vec::new();
-    reader.read_to_end(&mut read).unwrap();
-
-    assert_eq!(read, b"\"Hello\"");
-}
-
-#[test]
 fn test_transform_u32_to_array_of_u8() {
     let x: u32 = 8;
     let result: [u8; 4] = [0, 0, 0, 8];
