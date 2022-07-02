@@ -147,7 +147,12 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
             ServerMessage::EndOfGame(end_of_game) => {
                 println!("EndOfGame: {:?}", end_of_game);
                 is_connection_opened = false;
-                stream.shutdown(std::net::Shutdown::Both).unwrap();
+
+
+                match  stream.shutdown(std::net::Shutdown::Both) {
+                    Ok(_) => {}
+                    Err(_) => {}
+                }
             }
         }
     }
