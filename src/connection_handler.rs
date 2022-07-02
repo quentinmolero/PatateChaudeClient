@@ -100,7 +100,7 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
 
     while is_connection_opened {
         let message = read_message(&stream);
-        println!("Message: {:?}", message);
+        // println!("Message: {:?}", message);
 
         let message_json = serde_json::from_str(&message).unwrap();
         match message_json {
