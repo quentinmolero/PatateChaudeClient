@@ -50,14 +50,10 @@ impl Challenge for HashCash {
                     }
 
                     let seed = i.load(Relaxed);
-
                     let hash = format!("{:016X}", seed) + &message;
-
                     let result = format!("{:016X}", md5::compute(hash));
-
                     let binary = u128::from_str_radix(&*result, 16).unwrap();
                     //let mut check = format!("{:0128b}", binary);
-
 
                     if binary.leading_zeros() == complexity {
                         let result : MD5HashCashOutput = MD5HashCashOutput {
@@ -66,21 +62,15 @@ impl Challenge for HashCash {
                         };
                         valid.store(true, Relaxed);
                         tx.send(result).unwrap();
-
                     }
                     i.fetch_add(1, Relaxed);
-
                 }
-
             });
-
-
         }
 
         let machin = rx.recv().unwrap();
 
         return machin;
-
     }
 
     fn verify(&self, _: Self::Output) -> bool {
