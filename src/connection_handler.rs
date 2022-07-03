@@ -1,5 +1,6 @@
 use std::io::{Read, Write};
 use std::net::{TcpStream};
+use std::thread;
 use serde_json;
 use crate::challenge::Challenge;
 use crate::challenge_message::{ChallengeOutput, ChallengeResult, MD5HashCashOutput, RecoverSecretOutput};
@@ -9,6 +10,7 @@ use crate::client_message::{ClientMessage, Subscribe};
 use crate::md5cash_challenge::HashCash;
 use crate::recover_secret_challenge::{Recover};
 use crate::server_message::{PublicPlayer, ServerMessage};
+use crate::server_message::Result::SubscribeError;
 
 pub(crate) fn connect(username: String, port: u16) {
     let stream = TcpStream::connect("localhost:{port}".replace("{port}", &port.to_string()));
@@ -37,7 +39,7 @@ fn send_message(mut stream: &TcpStream, message: &str) {
     let message_size: u32 = message.len() as u32;
     let encoded_size = &transform_u32_to_array_of_u8(message_size);
 
-    println!("Sending message \"{message}\" of length {message_size}", message=message, message_size=message_size);
+    // println!("Sending message \"{message}\" of length {message_size}", message=message, message_size=message_size);
 
     let response = stream.write(encoded_size);
     match response {
@@ -76,8 +78,12 @@ fn read_message(mut stream: &TcpStream) -> String {
         _ => {}
     }
 
+    if length > 4096 {
+        return "".to_string();
+    }
+
     let message = String::from_utf8_lossy(&buffer);
-    println!("Received message \"{message}\" of length {message_size}", message = message, message_size = length);
+    // println!("Received message \"{message}\" of length {message_size}", message = message, message_size = length);
     return message.to_string();
 }
 
@@ -101,14 +107,27 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
         let message = read_message(&stream);
         // println!("Message: {:?}", message);
 
+        if message == "" {
+            continue;
+        }
+
         let message_json = serde_json::from_str(&message).unwrap();
         match message_json {
             ServerMessage::Welcome(welcome) => {
-                println!("Welcome: {:?}", welcome);
+                // println!("Welcome: {:?}", welcome);
                 send_username(&stream, &username);
             }
             ServerMessage::SubscribeResult(subscribe_result) => {
-                println!("Subscribe result: {:?}", subscribe_result);
+                // println!("Subscribe result: {:?}", subscribe_result);
+                match subscribe_result {
+                    SubscribeError(subscribe_error) => {
+                        println!("Subscribe error: {:?}", subscribe_error);
+                        stream.shutdown(std::net::Shutdown::Both).unwrap();
+                    }
+                    _ => {
+                        println!("Connected to the server");
+                    }
+                }
             }
             ServerMessage::PublicLeaderBoard(public_leader_board) => {
                 //println!("PublicLeaderBoard: {:?}", public_leader_board);
@@ -118,10 +137,10 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                 //println!("RoundSummary: {:?}", round_summary);
             }
             ServerMessage::Challenge(challenge) => {
-                println!("Challenge: {:?}", challenge);
+                // println!("Challenge: {:?}", challenge);
                 match challenge {
                     MD5HashCash(md5_hash_cash) => {
-                        println!("MD5HashCash: {:?}", md5_hash_cash);
+                        // println!("MD5HashCash: {:?}", md5_hash_cash);
                         let hashcash = HashCash::new(md5_hash_cash);
                         let hashcash_result = &HashCash::solve(&hashcash);
                         let hashcash_output = ChallengeOutput::MD5HashCash(MD5HashCashOutput {
@@ -132,7 +151,7 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                         send_message(&stream, &serde_json::to_string(&challenge_result).unwrap());
                     }
                     RecoverSecret(recover_secret) => {
-                        println!("RecoverSecret: {:?}", recover_secret);
+                        // println!("RecoverSecret: {:?}", recover_secret);
                         let recover_secret = Recover::new(recover_secret);
                         let recover_secret_result = &Recover::solve(&recover_secret);
                         let recover_secret_output = ChallengeOutput::RecoverSecret(RecoverSecretOutput {
@@ -145,7 +164,8 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                 }
             }
             ServerMessage::EndOfGame(end_of_game) => {
-                println!("EndOfGame: {:?}", end_of_game);
+                // println!("EndOfGame: {:?}", end_of_game);
+                println!("Game over, closing server connection...");
                 is_connection_opened = false;
 
 
