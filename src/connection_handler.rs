@@ -128,7 +128,7 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                             seed: hashcash_result.seed,
                             hashcode: hashcash_result.hashcode.to_string(),
                         });
-                        let challenge_result = format_challenge_result(hashcash_output, last_leaderboard);
+                        let challenge_result = format_challenge_result(hashcash_output, last_leaderboard, username.clone());
                         send_message(&stream, &serde_json::to_string(&challenge_result).unwrap());
                     }
                     RecoverSecret(recover_secret) => {
@@ -139,7 +139,7 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                             secret_sentence: recover_secret_result.secret_sentence.to_string()
                             //secret_sentence: "C'est chou".to_string()
                         });
-                        let challenge_result = format_challenge_result(recover_secret_output, last_leaderboard);
+                        let challenge_result = format_challenge_result(recover_secret_output, last_leaderboard, username.clone());
                         send_message(&stream, &serde_json::to_string(&challenge_result).unwrap());
                     }
                 }
@@ -158,17 +158,18 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
     }
 }
 
-fn format_challenge_result(challenge_output: ChallengeOutput, leaderboard: &mut Vec<PublicPlayer>) -> ClientMessage {
+fn format_challenge_result(challenge_output: ChallengeOutput, leaderboard: &mut Vec<PublicPlayer>, username: String) -> ClientMessage {
     return ClientMessage::ChallengeResult(ChallengeResult {
         answer: challenge_output,
-        next_target: compute_next_target(leaderboard)
+        next_target: compute_next_target(leaderboard, username.clone())
     });
 }
 
-fn compute_next_target(leaderboard: &mut Vec<PublicPlayer>) -> String {
+fn compute_next_target(leaderboard: &mut Vec<PublicPlayer>, username: String) -> String {
     let leaderboard = leaderboard;
     leaderboard.sort_by(|a, b| b.score.cmp(&a.score));
-    return leaderboard[0].name.to_string();
+    let next_target = leaderboard.iter().filter(| publicPlayer| publicPlayer.name != username).nth(0).unwrap();
+    return next_target.name.to_string();
 }
 
 #[test]
