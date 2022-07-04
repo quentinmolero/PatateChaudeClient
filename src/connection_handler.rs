@@ -12,7 +12,7 @@ use crate::server_message::{PublicPlayer, ServerMessage};
 use crate::server_message::Result::SubscribeError;
 
 pub(crate) fn connect(ip_address: String, username: String, port: u16) {
-    let stream = TcpStream::connect("{ip_address}:{port}".replace("{ip}", &ip_address).replace("{port}", &port.to_string()));
+    let stream = TcpStream::connect("{ip_address}:{port}".replace("{ip_address}", &ip_address).replace("{port}", &port.to_string()));
     match stream {
         Ok(stream) => {
             say_hello(&stream);
