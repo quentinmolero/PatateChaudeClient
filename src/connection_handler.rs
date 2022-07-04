@@ -34,6 +34,17 @@ fn transform_array_of_u8_to_u32(x:[u8;4]) -> u32 {
     ((x[0] as u32) << 24) | ((x[1] as u32) << 16) | ((x[2] as u32) << 8) | (x[3] as u32)
 }
 
+fn format_string_to_json(string: &ClientMessage) -> String {
+    match serde_json::to_string(&string) {
+        Ok(string) => {
+            return string
+        }
+        Err(err) => {
+            panic!("Cannot format string to json : {}", err)
+        }
+    }
+}
+
 fn send_message(mut stream: &TcpStream, message: &str) {
     let message_size: u32 = message.len() as u32;
     let encoded_size = &transform_u32_to_array_of_u8(message_size);
@@ -86,6 +97,17 @@ fn read_message(mut stream: &TcpStream) -> String {
     return message.to_string();
 }
 
+fn format_json_to_message(message: String) -> ServerMessage {
+    match serde_json::from_str(&message) {
+        Ok(server_message) => {
+            return server_message
+        }
+        Err(err) => {
+            panic!("Cannot format json to message : {}", err)
+        }
+    }
+}
+
 fn say_hello(stream: &TcpStream) {
     send_message(stream, "\"Hello\"");
 }
@@ -94,16 +116,7 @@ fn send_username(stream: &TcpStream, username: &str) {
     let message = ClientMessage::Subscribe(Subscribe {
         name: username.to_string(),
     });
-    let message_json = serde_json::to_string(&message);
-    match message_json {
-        Ok(formatted_json) => {
-            send_message(stream, &formatted_json);
-        }
-        Err(err) => {
-            println!("Couldn't send message to the server: {}", err);
-            close_socket_connection(stream);
-        }
-    }
+    send_message(stream, &format_string_to_json(&message));
 }
 
 fn listen_from_stream(stream: &TcpStream, username: String) {
@@ -118,7 +131,7 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
             continue;
         }
 
-        let message_json = serde_json::from_str(&message).unwrap();
+        let message_json = format_json_to_message(message);
 
         match message_json {
             ServerMessage::Welcome(_) => {
@@ -130,7 +143,7 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                 match subscribe_result {
                     SubscribeError(subscribe_error) => {
                         println!("Subscribe error: {:?}", subscribe_error);
-                        stream.shutdown(std::net::Shutdown::Both).unwrap();
+                        close_socket_connection(stream);
                     }
                     _ => {
                         println!("Connected to the server");
@@ -156,7 +169,7 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                             hashcode: hashcash_result.hashcode.to_string(),
                         });
                         let challenge_result = format_challenge_result(hashcash_output, last_leaderboard, username.clone());
-                        send_message(&stream, &serde_json::to_string(&challenge_result).unwrap());
+                        send_message(&stream, &format_string_to_json(&challenge_result));
                     }
                     RecoverSecret(recover_secret) => {
                         // println!("RecoverSecret: {:?}", recover_secret);
@@ -167,7 +180,7 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                             //secret_sentence: "C'est chou".to_string()
                         });
                         let challenge_result = format_challenge_result(recover_secret_output, last_leaderboard, username.clone());
-                        send_message(&stream, &serde_json::to_string(&challenge_result).unwrap());
+                        send_message(&stream, &format_string_to_json(&challenge_result));
                     }
                 }
             }
@@ -196,8 +209,15 @@ fn format_challenge_result(challenge_output: ChallengeOutput, leaderboard: &mut 
 fn compute_next_target(leaderboard: &mut Vec<PublicPlayer>, username: String) -> String {
     let leaderboard = leaderboard;
     leaderboard.sort_by(|a, b| b.score.cmp(&a.score));
-    let next_target = leaderboard.iter().filter(|public_player| public_player.name != username).nth(0).unwrap();
-    return next_target.name.to_string();
+    let next_target = leaderboard.iter().filter(|public_player| public_player.name != username).nth(0);
+    return match next_target {
+        Some(public_player) => {
+            public_player.name.to_string()
+        }
+        None => {
+            "".to_string()
+        }
+    }
 }
 
 fn close_socket_connection(stream: &TcpStream) {

@@ -3,7 +3,6 @@ use std::sync::atomic::{AtomicBool, AtomicU64};
 use std::sync::atomic::Ordering::Relaxed;
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
-// use std::time::Instant;
 use crate::challenge::Challenge;
 use crate::challenge_message::{MD5HashCashInput, MD5HashCashOutput};
 
@@ -60,7 +59,11 @@ impl Challenge for HashCash {
                             hashcode : result
                         };
                         valid.store(true, Relaxed);
-                        tx.send(result).unwrap();
+                        match tx.send(result){
+                            Ok(_) => {},
+                            Err(_) => {}
+                        };
+
                     }
                     i.fetch_add(1, Relaxed);
                 }
@@ -76,11 +79,14 @@ impl Challenge for HashCash {
 }
 
 fn verify_hashcash(complexity : u32, hashcode: String) -> bool {
-    let binary = u128::from_str_radix(&*hashcode, 16).unwrap();
-    if binary.leading_zeros() == complexity {
-        return true;
+    match u128::from_str_radix(&*hashcode, 16) {
+        Ok(binary) => {
+            if binary.leading_zeros() == complexity {
+                return true;
+            }
+        }
+        Err(_) => {}
     }
-
     return false;
 }
 

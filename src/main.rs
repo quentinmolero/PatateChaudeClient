@@ -31,24 +31,59 @@ fn main() {
 
 fn get_ip_address(args: &ArgMatches) -> String {
     if args.is_present("ip") {
-        args.value_of("ip").unwrap().to_string()
+        match args.value_of("ip") {
+            Some(ip) => {
+                return ip.to_string()
+            }
+            None => {
+                "localhost".to_string()
+            }
+        }
     } else {
         "localhost".to_string()
     }
 }
 
 fn get_username(args: &ArgMatches) -> String {
-    if args.is_present("username") {
-        args.value_of("username").unwrap().to_string()
+    return if args.is_present("username") {
+        match args.value_of("username") {
+            Some(username) => {
+                username.to_string()
+            }
+            None => {
+                get_default_player_name()
+            }
+        }
     } else {
-        "Player".to_string() + &SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis().to_string()
+        get_default_player_name()
+    }
+}
+
+fn get_default_player_name() -> String {
+    match SystemTime::now().duration_since(UNIX_EPOCH) {
+        Ok(time) => {
+            return "Player".to_string() + &time.as_millis().to_string();
+        }
+        Err(error) => {
+            panic!("{:?}", error);
+        }
     }
 }
 
 fn get_port(args: &ArgMatches) -> u16 {
-    if args.is_present("port") {
-        args.value_of("port").unwrap().parse().unwrap()
-    } else {
-        7878
+    return match args.value_of("port") {
+        Some(port) => {
+            match port.parse() {
+                Ok(port) => {
+                    return port
+                }
+                Err(error) => {
+                    panic!("{:?}", error);
+                }
+            }
+        }
+        None => {
+            7878
+        }
     }
 }
