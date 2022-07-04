@@ -2,11 +2,12 @@ use std::io::{Read, Write};
 use std::net::{TcpStream};
 use serde_json;
 use crate::challenge::Challenge;
-use crate::challenge_message::{ChallengeOutput, ChallengeResult, MD5HashCashOutput, RecoverSecretOutput};
-use crate::challenge_message::Challenge::{MD5HashCash, RecoverSecret};
+use crate::challenge_message::{ChallengeOutput, ChallengeResult, MD5HashCashOutput, MonstrousMazeOutput, RecoverSecretOutput};
+use crate::challenge_message::Challenge::{MD5HashCash, MonstrousMaze, RecoverSecret};
 
 use crate::client_message::{ClientMessage, Subscribe};
 use crate::md5cash_challenge::HashCash;
+use crate::monstrous_maze_challenge::Monstrous;
 use crate::recover_secret_challenge::{Recover};
 use crate::server_message::{PublicPlayer, ServerMessage};
 use crate::server_message::Result::SubscribeError;
@@ -167,6 +168,16 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                             //secret_sentence: "C'est chou".to_string()
                         });
                         let challenge_result = format_challenge_result(recover_secret_output, last_leaderboard, username.clone());
+                        send_message(&stream, &serde_json::to_string(&challenge_result).unwrap());
+                    }
+                    MonstrousMaze(monstrous_maze_input) => {
+                        println!("Monstrous Maze: {:?}", monstrous_maze_input);
+                        let monstrous = Monstrous::new(monstrous_maze_input);
+                        let monstrous_result = &Monstrous::solve(&monstrous);
+                        let monstrous_output_result = ChallengeOutput::MonstrousMaze(MonstrousMazeOutput {
+                            path: monstrous_result.path.to_string(),
+                        });
+                        let challenge_result = format_challenge_result(monstrous_output_result, last_leaderboard, username.clone());
                         send_message(&stream, &serde_json::to_string(&challenge_result).unwrap());
                     }
                 }
