@@ -99,23 +99,6 @@ pub(crate) fn add_space(string: &String, number_space: usize) -> String {
     return string_copy;
 }
 
-// fn main() {
-//     let result = entries_to_hashmap(vec![
-//         vec!["e".to_string(), "t".to_string(), "o".to_string().to_string()],
-//         vec!["c".to_string(), "o".to_string()],
-//         vec!["C".to_string(), "\'".to_string(), "t".to_string(), "o".to_string()],
-//         vec!["\'".to_string(), "h".to_string(), "u".to_string()],
-//         vec!["t".to_string(), "c".to_string(), "o".to_string()],
-//         vec!["o".to_string(), "u".to_string()],
-//         vec!["s".to_string(), "c".to_string()],
-//     ]);
-//
-//     println!("{:?}", result);
-//
-//     let result_generate = generate_string_from_hashmap(&result);
-//     println!("{:?}", result_generate);
-// }
-
 #[test]
 fn should_return_map_with_only_one_entry() {
     let result = HashMap::from([
