@@ -94,8 +94,16 @@ fn send_username(stream: &TcpStream, username: &str) {
     let message = ClientMessage::Subscribe(Subscribe {
         name: username.to_string(),
     });
-    let message_json = serde_json::to_string(&message).unwrap();
-    send_message(stream, &message_json);
+    let message_json = serde_json::to_string(&message);
+    match message_json {
+        Ok(formatted_json) => {
+            send_message(stream, &formatted_json);
+        }
+        Err(err) => {
+            println!("Couldn't send message to the server: {}", err);
+            close_socket_connection(stream);
+        }
+    }
 }
 
 fn listen_from_stream(stream: &TcpStream, username: String) {
@@ -111,6 +119,7 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
         }
 
         let message_json = serde_json::from_str(&message).unwrap();
+
         match message_json {
             ServerMessage::Welcome(_) => {
                 // println!("Welcome: {:?}", welcome);
@@ -189,6 +198,17 @@ fn compute_next_target(leaderboard: &mut Vec<PublicPlayer>, username: String) ->
     leaderboard.sort_by(|a, b| b.score.cmp(&a.score));
     let next_target = leaderboard.iter().filter(|public_player| public_player.name != username).nth(0).unwrap();
     return next_target.name.to_string();
+}
+
+fn close_socket_connection(stream: &TcpStream) {
+    match stream.shutdown(std::net::Shutdown::Both) {
+        Ok(_) => {
+            println!("Connection closed");
+        }
+        Err(err) => {
+            println!("Couldn't close connection: {}", err);
+        }
+    }
 }
 
 #[test]
