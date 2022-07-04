@@ -13,6 +13,10 @@ use clap::{App, Arg, ArgMatches};
 fn main() {
     let args = App::new("patate_chaude_client")
         .version("1.0")
+        .arg(Arg::with_name("ip")
+            .short("i".parse().unwrap())
+            .help("Sets the ip of the serveur, default is 127.0.0.1")
+            .takes_value(true))
         .arg(Arg::with_name("port")
             .short("p".parse().unwrap())
             .help("Sets the port")
@@ -22,7 +26,15 @@ fn main() {
              .help("Sets the username")
              .takes_value(true))
         .get_matches();
-    connection_handler::connect(get_username(&args), get_port(&args));
+    connection_handler::connect(get_ip_address(&args), get_username(&args), get_port(&args));
+}
+
+fn get_ip_address(args: &ArgMatches) -> String {
+    if args.is_present("ip") {
+        args.value_of("ip").unwrap().to_string()
+    } else {
+        "127.0.0.1".to_string()
+    }
 }
 
 fn get_username(args: &ArgMatches) -> String {
