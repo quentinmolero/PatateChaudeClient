@@ -1,6 +1,6 @@
 use crate::challenge::Challenge;
 use crate::challenge_message::{RecoverSecretInput, RecoverSecretOutput};
-use crate::recover_secret::{add_space, entries_to_hashmap, generate_string_from_hashmap};
+use crate::recover_secret::{entries_to_hashmap, generate_string_from_hashmap};
 
 pub(crate) struct Recover {
     input: RecoverSecretInput,

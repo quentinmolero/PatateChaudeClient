@@ -87,6 +87,7 @@ pub(crate) fn generate_string_from_hashmap(map: &HashMap<String, HashSet<String>
     return result;
 }
 // add Space all the one carrac
+#[allow(dead_code)]
 pub(crate) fn add_space(string: &String, number_space: usize) -> String {
     let mut string_copy: String = string.clone();
     let mut number_space_add_plus_one: usize = 1;
@@ -219,7 +220,7 @@ fn should_generate_string_with_hashmap_with_an_acceptance_test() {
 
     let string_generate = generate_string_from_hashmap(&map);
 
-    assert_eq!(result, result);
+    assert_eq!(result, string_generate);
 }
 
 #[test]
@@ -266,8 +267,8 @@ fn should_return_right_response_for_complexity_0() {
         tuple_sizes: [4, 4, 4, 4, 5, 4, 5].to_vec(),
     };
 
-    let mut recover_secret = crate::recover_secret_challenge::Recover::new(recover_secret_input);
-    let mut recover_secret_result = &crate::recover_secret_challenge::Recover::solve(&recover_secret);
+    let recover_secret = crate::recover_secret_challenge::Recover::new(recover_secret_input);
+    let recover_secret_result = &crate::recover_secret_challenge::Recover::solve(&recover_secret);
 
     let array_result = [
         "C'est cohu".to_string(),

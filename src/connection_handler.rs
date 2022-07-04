@@ -1,6 +1,5 @@
 use std::io::{Read, Write};
 use std::net::{TcpStream};
-use std::thread;
 use serde_json;
 use crate::challenge::Challenge;
 use crate::challenge_message::{ChallengeOutput, ChallengeResult, MD5HashCashOutput, RecoverSecretOutput};
@@ -113,7 +112,7 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
 
         let message_json = serde_json::from_str(&message).unwrap();
         match message_json {
-            ServerMessage::Welcome(welcome) => {
+            ServerMessage::Welcome(_) => {
                 // println!("Welcome: {:?}", welcome);
                 send_username(&stream, &username);
             }
@@ -133,7 +132,7 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                 //println!("PublicLeaderBoard: {:?}", public_leader_board);
                 *last_leaderboard = public_leader_board;
             }
-            ServerMessage::RoundSummary(round_summary) => {
+            ServerMessage::RoundSummary(_) => {
                 //println!("RoundSummary: {:?}", round_summary);
             }
             ServerMessage::Challenge(challenge) => {
@@ -163,7 +162,7 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                     }
                 }
             }
-            ServerMessage::EndOfGame(end_of_game) => {
+            ServerMessage::EndOfGame(_) => {
                 // println!("EndOfGame: {:?}", end_of_game);
                 println!("Game over, closing server connection...");
                 is_connection_opened = false;
@@ -188,7 +187,7 @@ fn format_challenge_result(challenge_output: ChallengeOutput, leaderboard: &mut 
 fn compute_next_target(leaderboard: &mut Vec<PublicPlayer>, username: String) -> String {
     let leaderboard = leaderboard;
     leaderboard.sort_by(|a, b| b.score.cmp(&a.score));
-    let next_target = leaderboard.iter().filter(| publicPlayer| publicPlayer.name != username).nth(0).unwrap();
+    let next_target = leaderboard.iter().filter(|public_player| public_player.name != username).nth(0).unwrap();
     return next_target.name.to_string();
 }
 
