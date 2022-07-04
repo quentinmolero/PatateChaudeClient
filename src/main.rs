@@ -34,7 +34,7 @@ fn get_ip_address(args: &ArgMatches) -> String {
     if args.is_present("ip") {
         args.value_of("ip").unwrap().to_string()
     } else {
-        "127.0.0.1".to_string()
+        "localhost".to_string()
     }
 }
 
