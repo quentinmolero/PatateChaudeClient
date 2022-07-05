@@ -2,13 +2,13 @@ use std::io::{Read, Write};
 use std::net::{TcpStream};
 use serde_json;
 use crate::challenge::Challenge;
-use crate::challenge_message::{ChallengeOutput, ChallengeResult, MD5HashCashOutput, RecoverSecretOutput};
+use crate::challenge_message::{ChallengeOutput, ChallengeResult, MD5HashCashInput, MD5HashCashOutput, RecoverSecretOutput};
 use crate::challenge_message::Challenge::{MD5HashCash, RecoverSecret};
 
 use crate::client_message::{ClientMessage, Subscribe};
 use crate::md5cash_challenge::HashCash;
 use crate::recover_secret_challenge::{Recover};
-use crate::server_message::{PublicPlayer, ServerMessage};
+use crate::server_message::{PublicPlayer, ServerMessage, Welcome};
 use crate::server_message::Result::SubscribeError;
 
 pub(crate) fn connect(ip_address: String, username: String, port: u16) {
@@ -242,4 +242,171 @@ fn test_transform_u32_to_array_of_u8() {
 fn test_transform_array_of_u8_to_u32() {
     let x: [u8; 4] = [0, 0, 0, 8];
     assert_eq!(transform_array_of_u8_to_u32(x), 8);
+}
+
+#[test]
+fn test_format_string_to_json_subscribe() {
+    let message = ClientMessage::Subscribe(Subscribe {
+        name: "test".to_string(),
+    });
+    let result = "{\"Subscribe\":{\"name\":\"test\"}}";
+    assert_eq!(format_string_to_json(&message), result);
+}
+
+#[test]
+fn test_format_string_to_json_challenge_result() {
+    let message = ClientMessage::ChallengeResult(ChallengeResult {
+        answer: ChallengeOutput::MD5HashCash(MD5HashCashOutput {
+            seed: 1,
+            hashcode: "test".to_string(),
+        }),
+        next_target: "test".to_string(),
+    });
+    let result = "{\"ChallengeResult\":{\"answer\":{\"MD5HashCash\":{\"seed\":1,\"hashcode\":\"test\"}},\"next_target\":\"test\"}}";
+    assert_eq!(format_string_to_json(&message), result);
+}
+
+#[test]
+fn test_format_json_to_message_welcome() {
+    let message = "{\"Welcome\":{\"version\":1}}".to_string();
+    let result = ServerMessage::Welcome(Welcome {
+        version: 1,
+    });
+    assert_eq!(format_json_to_message(message), result);
+}
+
+#[test]
+fn test_format_json_to_message_challenge() {
+    let result = ServerMessage::Challenge(MD5HashCash(MD5HashCashInput{
+        complexity: 0,
+        message: "test".to_string(),
+    }));
+    let message = "{\"Challenge\":{\"MD5HashCash\":{\"complexity\":0,\"message\":\"test\"}}}".to_string();
+    assert_eq!(format_json_to_message(message), result);
+}
+
+#[test]
+fn test_format_challenge_result_md5_hash_cash() {
+    let mut leaderboard = Vec::new();
+    leaderboard.push(PublicPlayer {
+        name: "test".to_string(),
+        stream_id: "".to_string(),
+        score: 10,
+        steps: 0,
+        is_active: false,
+        total_used_time: 0.0
+    });
+    leaderboard.push(PublicPlayer {
+        name: "test2".to_string(),
+        stream_id: "".to_string(),
+        score: 5,
+        steps: 0,
+        is_active: false,
+        total_used_time: 0.0
+    });
+    let message = format_challenge_result(ChallengeOutput::MD5HashCash(MD5HashCashOutput {
+        seed: 1,
+        hashcode: "test".to_string(),
+    }), &mut leaderboard, "test2".to_string());
+    let result = ClientMessage::ChallengeResult(ChallengeResult {
+        answer: ChallengeOutput::MD5HashCash(MD5HashCashOutput {
+            seed: 1,
+            hashcode: "test".to_string(),
+        }),
+        next_target: "test".to_string(),
+    });
+    assert_eq!(message, result);
+}
+
+#[test]
+fn test_format_challenge_result_md5_hash_cash_but_i_have_the_highest_score() {
+    let mut leaderboard = Vec::new();
+    leaderboard.push(PublicPlayer {
+        name: "test".to_string(),
+        stream_id: "".to_string(),
+        score: 10,
+        steps: 0,
+        is_active: false,
+        total_used_time: 0.0
+    });
+    leaderboard.push(PublicPlayer {
+        name: "test2".to_string(),
+        stream_id: "".to_string(),
+        score: 5,
+        steps: 0,
+        is_active: false,
+        total_used_time: 0.0
+    });
+    let message = format_challenge_result(ChallengeOutput::MD5HashCash(MD5HashCashOutput {
+        seed: 1,
+        hashcode: "test".to_string(),
+    }), &mut leaderboard, "test".to_string());
+    let result = ClientMessage::ChallengeResult(ChallengeResult {
+        answer: ChallengeOutput::MD5HashCash(MD5HashCashOutput {
+            seed: 1,
+            hashcode: "test".to_string(),
+        }),
+        next_target: "test2".to_string(),
+    });
+    assert_eq!(message, result);
+}
+
+#[test]
+fn test_compute_next_target() {
+    let mut leaderboard = Vec::new();
+    leaderboard.push(PublicPlayer {
+        name: "test".to_string(),
+        stream_id: "".to_string(),
+        score: 1,
+        steps: 0,
+        is_active: false,
+        total_used_time: 0.0
+    });
+    leaderboard.push(PublicPlayer {
+        name: "test2".to_string(),
+        stream_id: "".to_string(),
+        score: 2,
+        steps: 0,
+        is_active: false,
+        total_used_time: 0.0
+    });
+    leaderboard.push(PublicPlayer {
+        name: "test3".to_string(),
+        stream_id: "".to_string(),
+        score: 3,
+        steps: 0,
+        is_active: false,
+        total_used_time: 0.0
+    });
+    assert_eq!(compute_next_target(&mut leaderboard, "test".to_string()), "test3".to_string());
+}
+
+#[test]
+fn test_compute_next_target_if_i_have_the_highest_score() {
+    let mut leaderboard = Vec::new();
+    leaderboard.push(PublicPlayer {
+        name: "test".to_string(),
+        stream_id: "".to_string(),
+        score: 1,
+        steps: 0,
+        is_active: false,
+        total_used_time: 0.0
+    });
+    leaderboard.push(PublicPlayer {
+        name: "test2".to_string(),
+        stream_id: "".to_string(),
+        score: 2,
+        steps: 0,
+        is_active: false,
+        total_used_time: 0.0
+    });
+    leaderboard.push(PublicPlayer {
+        name: "test3".to_string(),
+        stream_id: "".to_string(),
+        score: 3,
+        steps: 0,
+        is_active: false,
+        total_used_time: 0.0
+    });
+    assert_eq!(compute_next_target(&mut leaderboard, "test3".to_string()), "test2".to_string());
 }
