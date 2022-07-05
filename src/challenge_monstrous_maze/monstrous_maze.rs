@@ -174,7 +174,6 @@ fn test_dijkstra() {
 
 #[test]
 fn test_complex_dijkstra() {
-    let v = string_to_matrix("I ###\nM # #\nX  ##");
     let v = string_to_matrix("      #\n  # # #\nI # # #\n##  # #\n##  # #\n##  # #\n##  ###\n##  ###\n##   #X\n####   ");
     /*
            "      #\n
