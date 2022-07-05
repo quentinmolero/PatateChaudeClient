@@ -186,7 +186,7 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                         send_message(&stream, &format_string_to_json(&challenge_result));
                     }
                     MonstrousMaze(monstrous_maze_input) => {
-                        println!("Monstrous Maze: {:?}", monstrous_maze_input);
+                        //println!("Monstrous Maze: {:?}", monstrous_maze_input);
                         let monstrous = Monstrous::new(monstrous_maze_input);
                         let monstrous_result = &Monstrous::solve(&monstrous);
                         let monstrous_output_result = ChallengeOutput::MonstrousMaze(MonstrousMazeOutput {
