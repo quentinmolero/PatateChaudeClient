@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
+#[allow(unused_imports)]
 use crate::challenge::Challenge;
+#[allow(unused_imports)]
+use crate::recover_secret_challenge::Recover;
 
 fn generate_all_successors_for_an_entry(index_entry: usize, entry: &Vec<String>) -> HashSet<String> {
     let mut successors: HashSet<String> = HashSet::new();
@@ -267,8 +270,8 @@ fn should_return_right_response_for_complexity_0() {
         tuple_sizes: [4, 4, 4, 4, 5, 4, 5].to_vec(),
     };
 
-    let recover_secret = crate::recover_secret_challenge::Recover::new(recover_secret_input);
-    let recover_secret_result = &crate::recover_secret_challenge::Recover::solve(&recover_secret);
+    let recover_secret = Recover::new(recover_secret_input);
+    let recover_secret_result = &Recover::solve(&recover_secret);
 
     let array_result = [
         "C'est cohu".to_string(),

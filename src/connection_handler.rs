@@ -2,12 +2,14 @@ use std::io::{Read, Write};
 use std::net::{TcpStream};
 use serde_json;
 use crate::challenge::Challenge;
+#[allow(unused_imports)]
 use crate::challenge_message::{ChallengeOutput, ChallengeResult, MD5HashCashInput, MD5HashCashOutput, RecoverSecretOutput};
 use crate::challenge_message::Challenge::{MD5HashCash, RecoverSecret};
 
 use crate::client_message::{ClientMessage, Subscribe};
 use crate::md5cash_challenge::HashCash;
 use crate::recover_secret_challenge::{Recover};
+#[allow(unused_imports)]
 use crate::server_message::{PublicPlayer, ServerMessage, Welcome};
 use crate::server_message::Result::SubscribeError;
 
@@ -18,7 +20,7 @@ pub(crate) fn connect(ip_address: String, username: String, port: u16) {
             say_hello(&stream);
             listen_from_stream(&stream, username);
         }
-        Err(err) => panic!("Cannot connect : {err}"),
+        Err(err) => panic!("Cannot connect : {}", err),
     }
 }
 
