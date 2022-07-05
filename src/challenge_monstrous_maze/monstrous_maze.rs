@@ -1,11 +1,7 @@
-
-
-// convert string to matrix of characters with \n as separator
 pub(crate) fn string_to_matrix(s: &str) -> Vec<Vec<char>> {
     s.split('\n').map(|line| line.chars().collect()).collect()
 }
 
-// return position of carracter X in matrix V
 pub(crate) fn find_character_position(v: &Vec<Vec<char>>, x: char) -> Option<(usize, usize)> {
     for (i, line) in v.iter().enumerate() {
         for (j, c) in line.iter().enumerate() {
@@ -17,7 +13,6 @@ pub(crate) fn find_character_position(v: &Vec<Vec<char>>, x: char) -> Option<(us
     return None;
 }
 
-// function to do dijkstra algorithm to find the shortest path between two points past in arguments (start and end)
 pub(crate) fn dijkstra(v: Vec<Vec<char>>, start: (usize, usize), end: (usize, usize), mut life: u8) -> Vec<(usize, usize)> {
     let mut dist: Vec<Vec<usize>> = vec![vec![2000; v[0].len()]; v.len()];
     let mut prev: Vec<Vec<(usize, usize)>> = vec![vec![(0, 0); v[0].len()]; v.len()];
@@ -35,21 +30,11 @@ pub(crate) fn dijkstra(v: Vec<Vec<char>>, start: (usize, usize), end: (usize, us
         if i == end.0 && j == end.1 {
             break;
         }
-        //print!("je passe ici");
-        //print!("{}", (i as i32) -1 );
 
         for (i2, j2) in [(i as i32 - 1, j as i32), (i as i32 + 1, j as i32), (i as i32, j as i32 - 1), (i as i32, j as i32 + 1)].iter() {
-            //println!("i2: {}, j2: {}\n", i2, j2);
             if *i2 < 0 || *i2 >= v.len() as i32 || *j2 < 0 || *j2 >= v[0].len() as i32 {
                 continue;
             }
-            /*println!("{:?}", v);
-            println!("v value i2 & j2: {}\n", v[*i2 as usize][*j2 as usize]); // problème référence pas valeur
-            println!("i2: {} & j2: {}\n", i2, j2); // problème référence pas valeur
-            println!("v value i2 & j2: {}\n", v[i][j]); // problème référence pas valeur
-            println!("i: {} & j: {}\n", i, j); // problème référence pas valeur
-            println!("dist value i2 & j2: {}\n", dist[*i2 as usize][*j2 as usize]); // problème référence pas valeur
-            println!("dist value i & j: {}\n", dist[i][j]); // problème référence pas valeur*/
             let i2 = *i2 as usize;
             let j2 = *j2 as usize;
 
