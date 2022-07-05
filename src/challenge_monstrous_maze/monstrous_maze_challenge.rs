@@ -1,6 +1,6 @@
 use crate::challenge::Challenge;
 use crate::challenge_message::{MonstrousMazeInput, MonstrousMazeOutput};
-use crate::monstrous_maze::{dijkstra, find_character_position, path_to_direction, string_to_matrix};
+use crate::challenge_monstrous_maze::monstrous_maze::{dijkstra, find_character_position, path_to_direction, string_to_matrix};
 
 pub(crate) struct Monstrous {
     input: MonstrousMazeInput,
