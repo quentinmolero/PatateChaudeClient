@@ -3,8 +3,9 @@ use std::net::{TcpStream};
 use serde_json;
 use crate::challenge::Challenge;
 #[allow(unused_imports)]
-use crate::challenge_message::{ChallengeOutput, ChallengeResult, MD5HashCashInput, MD5HashCashOutput, RecoverSecretOutput};
-use crate::challenge_message::Challenge::{MD5HashCash, RecoverSecret};
+use crate::challenge_message::{ChallengeOutput, ChallengeResult, MD5HashCashInput, MD5HashCashOutput, MonstrousMazeOutput, RecoverSecretOutput};
+use crate::challenge_message::Challenge::{MD5HashCash, MonstrousMaze, RecoverSecret};
+use crate::challenge_monstrous_maze::monstrous_maze_challenge::Monstrous;
 
 use crate::client_message::{ClientMessage, Subscribe};
 use crate::md5cash_challenge::HashCash;
@@ -182,6 +183,16 @@ fn listen_from_stream(stream: &TcpStream, username: String) {
                             //secret_sentence: "C'est chou".to_string()
                         });
                         let challenge_result = format_challenge_result(recover_secret_output, last_leaderboard, username.clone());
+                        send_message(&stream, &format_string_to_json(&challenge_result));
+                    }
+                    MonstrousMaze(monstrous_maze_input) => {
+                        println!("Monstrous Maze: {:?}", monstrous_maze_input);
+                        let monstrous = Monstrous::new(monstrous_maze_input);
+                        let monstrous_result = &Monstrous::solve(&monstrous);
+                        let monstrous_output_result = ChallengeOutput::MonstrousMaze(MonstrousMazeOutput {
+                            path: monstrous_result.path.to_string(),
+                        });
+                        let challenge_result = format_challenge_result(monstrous_output_result, last_leaderboard, username.clone());
                         send_message(&stream, &format_string_to_json(&challenge_result));
                     }
                 }

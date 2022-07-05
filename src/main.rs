@@ -6,6 +6,7 @@ mod md5cash_challenge;
 mod challenge;
 mod recover_secret;
 mod recover_secret_challenge;
+mod challenge_monstrous_maze;
 
 use std::time::{SystemTime, UNIX_EPOCH};
 use clap::{App, Arg, ArgMatches};

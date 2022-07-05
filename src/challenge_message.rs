@@ -25,15 +25,28 @@ pub(crate) struct RecoverSecretOutput {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
+pub(crate) struct MonstrousMazeInput {
+    pub grid: String,
+    pub endurance: u8,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+pub(crate) struct MonstrousMazeOutput {
+    pub path: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub(crate) enum Challenge {
     MD5HashCash(MD5HashCashInput),
     RecoverSecret(RecoverSecretInput),
+    MonstrousMaze(MonstrousMazeInput),
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub(crate) enum ChallengeOutput {
     MD5HashCash(MD5HashCashOutput),
     RecoverSecret(RecoverSecretOutput),
+    MonstrousMaze(MonstrousMazeOutput),
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]

@@ -280,3 +280,4 @@ fn should_return_right_response_for_complexity_0() {
 
     assert_eq!(true, array_result.contains(&recover_secret_result.secret_sentence));
 }
+
