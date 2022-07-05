@@ -1,2 +1,2 @@
-pub mod monstrous_maze;
+mod monstrous_maze;
 pub mod monstrous_maze_challenge;

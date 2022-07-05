@@ -18,7 +18,7 @@ pub(crate) fn find_character_position(v: &Vec<Vec<char>>, x: char) -> Option<(us
 }
 
 // function to do dijkstra algorithm to find the shortest path between two points past in arguments (start and end)
-pub(crate) fn dijkstra(v: Vec<Vec<char>>, start: (usize, usize), end: (usize, usize)) -> Vec<(usize, usize)> {
+pub(crate) fn dijkstra(v: Vec<Vec<char>>, start: (usize, usize), end: (usize, usize), mut life: u8) -> Vec<(usize, usize)> {
     let mut dist: Vec<Vec<usize>> = vec![vec![2000; v[0].len()]; v.len()];
     let mut prev: Vec<Vec<(usize, usize)>> = vec![vec![(0, 0); v[0].len()]; v.len()];
     let mut visited: Vec<Vec<bool>> = vec![vec![false; v[0].len()]; v.len()];
@@ -56,22 +56,23 @@ pub(crate) fn dijkstra(v: Vec<Vec<char>>, start: (usize, usize), end: (usize, us
             if v[i2][j2] == '#' {
                 continue;
             }
+
+            if v[i2][j2] == 'M' && life == 1 {
+                continue;
+            }else if v[i2][j2] == 'M' {
+                life -= 1;
+            }
+
             if dist[i2][j2] > dist[i][j] + 1 {
                 dist[i2][j2] = dist[i][j] + 1;
                 prev[i2][j2] = (i, j);
-                //println!("ajout dans la queue -> {} {}", i2, j2);
                 queue.push((i2.clone(), j2.clone()));
             }
         }
     }
-
-    /*println!("prev: {:?}", prev);
-    println!("dist: {:?}", dist);
-    println!("visited: {:?}", visited);*/
     let mut path: Vec<(usize, usize)> = Vec::new();
     let mut current = end;
     while current != start {
-        //println!("current -> {:?}", current);
         path.push(current);
         current = prev[current.0][ current.1];
     }
@@ -82,7 +83,6 @@ pub(crate) fn dijkstra(v: Vec<Vec<char>>, start: (usize, usize), end: (usize, us
 }
 
 
-// path to direction function to convert the path to direction Vec of string
 pub(crate) fn path_to_direction(path: &Vec<(usize, usize)>) -> Vec<String> {
     let mut direction: Vec<String> = Vec::new();
     for i in 1..path.len() {
@@ -99,7 +99,6 @@ pub(crate) fn path_to_direction(path: &Vec<(usize, usize)>) -> Vec<String> {
     return direction;
 }
 
-// test path to direction function to convert the path to direction Vec of string
 #[test]
 fn test_path_to_direction_to_bottom() {
     let path = vec![(0, 0), (1, 0)];
@@ -147,15 +146,14 @@ fn test_complete_path_to_direction_of_complexe_example() {
 #[test]
 fn test_dijkstra_with_two_case_move() {
     let v = string_to_matrix("I####\nX## #");
-    /*let v = string_to_matrix(
-        "I####\n
-            X## #\n");*/
+    /*
+            "I####\n
+             X## #\n"
+    */
     let result_expected = Vec::from([(0, 0), (1, 0)]);
     let start = find_character_position(&v, 'I').unwrap();
     let end = find_character_position(&v, 'X').unwrap();
-    let path = dijkstra(v.clone(), start, end);
-    //println!("je suis une pomme");
-    //println!("{:?}", path);
+    let path = dijkstra(v.clone(), start, end, 1);
     assert_eq!(path, result_expected);
 }
 
@@ -165,25 +163,25 @@ fn test_dijkstra_with_three_case_move() {
     let result_expected = Vec::from([(0, 0), (1, 0), (2, 0)]);
     let start = find_character_position(&v, 'I').unwrap();
     let end = find_character_position(&v, 'X').unwrap();
-    let path = dijkstra(v.clone(), start, end);
-    //println!("{:?}", path);
+    let path = dijkstra(v.clone(), start, end, 1);
     assert_eq!(path, result_expected);
 }
 
 #[test]
 fn test_dijkstra() {
     let v = string_to_matrix("I####\n ## #\n  # #\n#   #\n###X#");
-    /*let v = string_to_matrix(
+    /*
            "I####\n
              ## #\n
               # #\n
             #   #\n
-            ###X#");*/
+            ###X#"
+    */
 
     let result_expected = Vec::from([(0, 0), (1, 0), (2, 0), (2, 1), (3, 1), (3, 2), (3, 3), (4, 3)]);
     let start = find_character_position(&v, 'I').unwrap();
     let end = find_character_position(&v, 'X').unwrap();
-    let path = dijkstra(v.clone(), start, end);
+    let path = dijkstra(v.clone(), start, end, 1);
     //println!("je suis une pomme");
     //println!("{:?}", path);
     assert_eq!(path, result_expected);
@@ -191,8 +189,9 @@ fn test_dijkstra() {
 
 #[test]
 fn test_complex_dijkstra() {
+    let v = string_to_matrix("I ###\nM # #\nX  ##");
     let v = string_to_matrix("      #\n  # # #\nI # # #\n##  # #\n##  # #\n##  # #\n##  ###\n##  ###\n##   #X\n####   ");
-    /*let v = string_to_matrix(
+    /*
            "      #\n
               # # #\n
             I # # #\n
@@ -202,12 +201,49 @@ fn test_complex_dijkstra() {
             ##  ###\n
             ##  ###\n
             ##   #X\n
-            ####   ");*/
+            ####   "
+     */
 
     let result_expected = Vec::from([(2, 0), (2, 1), (1, 1), (0, 1), (0, 2), (0, 3), (1, 3), (2, 3), (3, 3), (3, 2), (4, 2), (5, 2), (5, 3), (6, 3), (7, 3), (8, 3), (8, 4), (9, 4), (9, 5), (9, 6), (8, 6)]);
     let start = find_character_position(&v, 'I').unwrap();
     let end = find_character_position(&v, 'X').unwrap();
-    let path = dijkstra(v.clone(), start, end);
+    let path = dijkstra(v.clone(), start, end, 1);
+    //println!("{:?}", path);
+    assert_eq!(path, result_expected);
+}
+
+#[test]
+fn test_simple_dijkstra_with_one_monster() {
+    let v = string_to_matrix("I ###\nM # #\nX  ##");
+    /*
+        "I ###\n
+         M # #\n
+         X  ##"
+
+    */
+
+    let result_expected = Vec::from([(0, 0), (0, 1), (1, 1), (2, 1), (2, 0)]);
+    let start = find_character_position(&v, 'I').unwrap();
+    let end = find_character_position(&v, 'X').unwrap();
+    let path = dijkstra(v.clone(), start, end, 1);
+    //println!("{:?}", path);
+    assert_eq!(path, result_expected);
+}
+
+#[test]
+fn test_simple_dijkstra_with_two_monster_() {
+    let v = string_to_matrix("M     #\n  # #  \nIM# #M \n##M MX ");
+    /*"
+            M     #\n
+              # #  \n
+            IM# #M \n
+            ##M MX "
+     */
+
+    let result_expected = Vec::from([(2, 0), (2, 1), (1, 1), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (1, 5), (1, 6), (2, 6), (3, 6), (3, 5)]);
+    let start = find_character_position(&v, 'I').unwrap();
+    let end = find_character_position(&v, 'X').unwrap();
+    let path = dijkstra(v.clone(), start, end, 2);
     //println!("{:?}", path);
     assert_eq!(path, result_expected);
 }
