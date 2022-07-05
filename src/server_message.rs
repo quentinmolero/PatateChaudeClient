@@ -1,29 +1,29 @@
 use serde::{Serialize, Deserialize};
 use crate::challenge_message::{Challenge, ReportedChallengeResult};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub(crate) struct Welcome {
     pub(crate) version: u8,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub(crate) enum SubscriptionError {
     AlreadyRegistered,
     InvalidName
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub(crate) struct SubscribeError {
     pub(crate) subscription_error: SubscriptionError,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub(crate) enum Result {
     Ok,
     SubscribeError(SubscribeError),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub(crate) struct PublicPlayer {
     pub(crate) name: String,
     pub(crate) stream_id: String,
@@ -33,18 +33,18 @@ pub(crate) struct PublicPlayer {
     pub(crate) total_used_time: f64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub(crate) struct RoundSummary {
     pub(crate) challenge: String,
     pub(crate) chain: Vec<ReportedChallengeResult>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub(crate) struct EndOfGame {
     pub(crate) leader_board: Vec<PublicPlayer>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub(crate) enum ServerMessage {
     Welcome(Welcome),
     SubscribeResult(Result),
