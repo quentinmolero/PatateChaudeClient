@@ -2,8 +2,6 @@
 
 ---
 
-- 
-
 ## Groupe 1
 
 - Quentin MOLERO
@@ -11,36 +9,36 @@
 - Florian GUISTI
 - Cédric LEPROHON
 
-## Who do what ?
+## Who did what ?
 
 - Cédric LEPROHON
   - HashCash challenge with tests
   - Bonus : advanced technique for performance : (Mutli-threading for performance)
 - Florian GUISTI
   - Server part with tests 40% (Mob Programming most of the time)
-  - Bonus: continuous integration : (realised with Github-action)
+  - Bonus: continuous integration : (realized with Github-action)
 - Quentin MOLERO
   - Client part with tests
   - Server part with tests 60% (Mob Programming most of the time)
-  - refacto to pay attention to the quality of the code
+  - refactoring for better code quality
+  - Bonus: Strategy to design next target on the server
 - Remy MACHAVOINE
   - RecoverSecret, complexity 0 to 16 with tests
-  - Bonus: MonstrousMaze with tests with monsters or not even if the server does not produce monsters (verify monsters scenario with tests)
-  - Bonus: game strategy
+  - Bonus: Monstrous Maze plus tests with and without monsters (despite the server not sending monsters, the algorithm is verified through tests)
+  - Bonus: Strategy to design next target on the server
 
 ## work organization
 
 we made the choice to split the work from the beginning and that therefore two people would not work on the network part in order to advance as fast as possible on the whole project.
-We also created a discord to organize the work and the meetings which allowed us to advance in this one
+We also created a discord chat to organize the work and meetings which allowed us to follow the work of everyone in real time.
 
 ## Specificity
 
-a specificity to our project was not asked in the subject but we decided to do it anyway, it was the monstrous maze challenge
-
+A specificity to our subject is that we decided to do the monstrous maze challenge even if it was not required.
 
 ## Completed bonuses
 
-- game strategy
+- Strategy to design next target on the server
 - monstrous maze with tests
 - Continuous integration with github-action
 - Advanced technique for performance
@@ -62,7 +60,8 @@ a specificity to our project was not asked in the subject but we decided to do i
 cargo build
 ```
 
-## compile for release (much more performatn)
+## compile for release (much more performance)
+
 
 ```bash
 cargo build --release
