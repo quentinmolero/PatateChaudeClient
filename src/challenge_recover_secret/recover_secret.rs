@@ -3,7 +3,7 @@ use std::collections::HashSet;
 #[allow(unused_imports)]
 use crate::challenge::Challenge;
 #[allow(unused_imports)]
-use crate::recover_secret_challenge::Recover;
+use crate::challenge_recover_secret::recover_secret_challenge::Recover;
 
 fn generate_all_successors_for_an_entry(index_entry: usize, entry: &Vec<String>) -> HashSet<String> {
     let mut successors: HashSet<String> = HashSet::new();
@@ -16,7 +16,6 @@ fn generate_all_successors_for_an_entry(index_entry: usize, entry: &Vec<String>)
 
 pub(crate) fn entries_to_hashmap(entries: Vec<Vec<String>>) -> HashMap<String, HashSet<String>> {
     let mut map: HashMap<String, HashSet<String>> = HashMap::new();
-    // iterate on entries with key and value
     for entry in entries {
         for (entries_one_entry, one_entry) in entry.iter().enumerate() {
             if map.contains_key(one_entry) {
@@ -89,19 +88,7 @@ pub(crate) fn generate_string_from_hashmap(map: &HashMap<String, HashSet<String>
 
     return result;
 }
-// add Space all the one carrac
-#[allow(dead_code)]
-pub(crate) fn add_space(string: &String, number_space: usize) -> String {
-    let mut string_copy: String = string.clone();
-    let mut number_space_add_plus_one: usize = 1;
-    for i in 0..number_space {
-        // add space between O to 2 carrac and between 3 to 6 carrac
-        string_copy.insert(i + number_space_add_plus_one, ' ');
-        number_space_add_plus_one += 1;
 
-    }
-    return string_copy;
-}
 
 #[test]
 fn should_return_map_with_only_one_entry() {
@@ -226,41 +213,6 @@ fn should_generate_string_with_hashmap_with_an_acceptance_test() {
     assert_eq!(result, string_generate);
 }
 
-#[test]
-fn should_add_zero_space_to_string() {
-    let string_source = "pomme".to_string();
-    let number_space = 0;
-
-    let string_expected = "pomme";
-
-    let string_with_spaces_add = add_space(&string_source, number_space);
-
-    assert_eq!(string_expected, string_with_spaces_add);
-}
-
-#[test]
-fn should_add_one_space_to_string() {
-    let string_source = "pomme".to_string();
-    let number_space = 1;
-
-    let string_expected = "p omme";
-
-    let string_with_spaces_add = add_space(&string_source, number_space);
-
-    assert_eq!(string_expected, string_with_spaces_add);
-}
-
-#[test]
-fn should_add_three_space_to_string() {
-    let string_source = "pomme".to_string();
-    let number_space = 3;
-
-    let string_expected = "p o m me";
-
-    let string_with_spaces_add = add_space(&string_source, number_space);
-
-    assert_eq!(string_expected, string_with_spaces_add);
-}
 
 #[test]
 fn should_return_right_response_for_complexity_0() {

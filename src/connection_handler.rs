@@ -6,10 +6,10 @@ use crate::challenge::Challenge;
 use crate::challenge_message::{ChallengeOutput, ChallengeResult, MD5HashCashInput, MD5HashCashOutput, MonstrousMazeOutput, RecoverSecretOutput};
 use crate::challenge_message::Challenge::{MD5HashCash, MonstrousMaze, RecoverSecret};
 use crate::challenge_monstrous_maze::monstrous_maze_challenge::Monstrous;
+use crate::challenge_recover_secret::recover_secret_challenge::Recover;
 
 use crate::client_message::{ClientMessage, Subscribe};
 use crate::md5cash_challenge::HashCash;
-use crate::recover_secret_challenge::{Recover};
 #[allow(unused_imports)]
 use crate::server_message::{PublicPlayer, ServerMessage, Welcome};
 use crate::server_message::Result::SubscribeError;

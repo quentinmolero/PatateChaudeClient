@@ -1,6 +1,6 @@
 use crate::challenge::Challenge;
 use crate::challenge_message::{RecoverSecretInput, RecoverSecretOutput};
-use crate::recover_secret::{entries_to_hashmap, generate_string_from_hashmap};
+use crate::challenge_recover_secret::recover_secret::{entries_to_hashmap, generate_string_from_hashmap};
 
 pub(crate) struct Recover {
     input: RecoverSecretInput,
@@ -21,7 +21,7 @@ impl Challenge for Recover {
     }
 
     fn solve(&self) -> RecoverSecretOutput {
-        let entries = map_recover_secret_challenge_to_entries(RecoverSecretInput { word_count: self.input.word_count.clone(), letters: self.input.letters.clone(), tuple_sizes: self.input.tuple_sizes.clone() });
+        let entries = map_recover_secret_challenge_input_to_collection_pattern(RecoverSecretInput { word_count: self.input.word_count.clone(), letters: self.input.letters.clone(), tuple_sizes: self.input.tuple_sizes.clone() });
         let map = entries_to_hashmap(entries);
         let result = generate_string_from_hashmap(&map);
         return RecoverSecretOutput {
@@ -34,7 +34,7 @@ impl Challenge for Recover {
     }
 }
 
-fn map_recover_secret_challenge_to_entries(recover_secret_challenge: RecoverSecretInput) -> Vec<Vec<String>> {
+fn map_recover_secret_challenge_input_to_collection_pattern(recover_secret_challenge: RecoverSecretInput) -> Vec<Vec<String>> {
     let mut entries: Vec<Vec<String>> = Vec::new();
     let letters_split = recover_secret_challenge.letters.split("");
     let letters_vec = letters_split.collect::<Vec<&str>>();
@@ -56,7 +56,7 @@ fn should_return_empty_entries_because_empty_tuple() {
     let recover_secret = RecoverSecretInput { word_count: 1, letters: "zFSZPdsYveFSIELYQ9FwIs6NqB3wnkjoect1z".to_string(), tuple_sizes: Vec::from([])};
     let result_expected: Vec<Vec<String>> = Vec::from([]);
 
-    let result = map_recover_secret_challenge_to_entries(recover_secret);
+    let result = map_recover_secret_challenge_input_to_collection_pattern(recover_secret);
 
 
     assert_eq!(result_expected, result);
@@ -70,7 +70,7 @@ fn should_map_simple_recover_secret_to_entries() {
         Vec::from(["S".to_string(), "Z".to_string()]),
     ]);
 
-    let result = map_recover_secret_challenge_to_entries(recover_secret);
+    let result = map_recover_secret_challenge_input_to_collection_pattern(recover_secret);
 
 
     assert_eq!(result_expected, result);
@@ -87,7 +87,7 @@ fn should_map_complexe_recover_secret_entry_to_entries() {
         Vec::from(['e'.to_string(),'c'.to_string(),'t'.to_string(),'1'.to_string(),'z'.to_string()])
     ]);
 
-    let result = map_recover_secret_challenge_to_entries(recover_secret);
+    let result = map_recover_secret_challenge_input_to_collection_pattern(recover_secret);
 
 
     assert_eq!(result_expected, result);

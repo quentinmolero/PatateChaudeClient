@@ -1,17 +1,5 @@
-pub(crate) fn string_to_matrix(s: &str) -> Vec<Vec<char>> {
-    s.split('\n').map(|line| line.chars().collect()).collect()
-}
-
-pub(crate) fn find_character_position(v: &Vec<Vec<char>>, x: char) -> Option<(usize, usize)> {
-    for (i, line) in v.iter().enumerate() {
-        for (j, c) in line.iter().enumerate() {
-            if *c == x {
-                return Some((i, j));
-            }
-        }
-    }
-    return None;
-}
+#[allow(unused_imports)]
+use crate::challenge_monstrous_maze::utils::monstrous_maze_utils::{find_character_position_matrix, string_to_matrix};
 
 pub(crate) fn dijkstra(v: Vec<Vec<char>>, start: (usize, usize), end: (usize, usize), mut life: u8) -> Vec<(usize, usize)> {
     let mut dist: Vec<Vec<usize>> = vec![vec![2000; v[0].len()]; v.len()];
@@ -136,8 +124,8 @@ fn test_dijkstra_with_two_case_move() {
              X## #\n"
     */
     let result_expected = Vec::from([(0, 0), (1, 0)]);
-    let start = find_character_position(&v, 'I').unwrap();
-    let end = find_character_position(&v, 'X').unwrap();
+    let start = find_character_position_matrix(&v, 'I').unwrap();
+    let end = find_character_position_matrix(&v, 'X').unwrap();
     let path = dijkstra(v.clone(), start, end, 1);
     assert_eq!(path, result_expected);
 }
@@ -146,8 +134,8 @@ fn test_dijkstra_with_two_case_move() {
 fn test_dijkstra_with_three_case_move() {
     let v = string_to_matrix("I####\n ## #\nX# ##");
     let result_expected = Vec::from([(0, 0), (1, 0), (2, 0)]);
-    let start = find_character_position(&v, 'I').unwrap();
-    let end = find_character_position(&v, 'X').unwrap();
+    let start = find_character_position_matrix(&v, 'I').unwrap();
+    let end = find_character_position_matrix(&v, 'X').unwrap();
     let path = dijkstra(v.clone(), start, end, 1);
     assert_eq!(path, result_expected);
 }
@@ -164,8 +152,8 @@ fn test_dijkstra() {
     */
 
     let result_expected = Vec::from([(0, 0), (1, 0), (2, 0), (2, 1), (3, 1), (3, 2), (3, 3), (4, 3)]);
-    let start = find_character_position(&v, 'I').unwrap();
-    let end = find_character_position(&v, 'X').unwrap();
+    let start = find_character_position_matrix(&v, 'I').unwrap();
+    let end = find_character_position_matrix(&v, 'X').unwrap();
     let path = dijkstra(v.clone(), start, end, 1);
     //println!("je suis une pomme");
     //println!("{:?}", path);
@@ -189,8 +177,8 @@ fn test_complex_dijkstra() {
      */
 
     let result_expected = Vec::from([(2, 0), (2, 1), (1, 1), (0, 1), (0, 2), (0, 3), (1, 3), (2, 3), (3, 3), (3, 2), (4, 2), (5, 2), (5, 3), (6, 3), (7, 3), (8, 3), (8, 4), (9, 4), (9, 5), (9, 6), (8, 6)]);
-    let start = find_character_position(&v, 'I').unwrap();
-    let end = find_character_position(&v, 'X').unwrap();
+    let start = find_character_position_matrix(&v, 'I').unwrap();
+    let end = find_character_position_matrix(&v, 'X').unwrap();
     let path = dijkstra(v.clone(), start, end, 1);
     //println!("{:?}", path);
     assert_eq!(path, result_expected);
@@ -207,8 +195,8 @@ fn test_simple_dijkstra_with_one_monster() {
     */
 
     let result_expected = Vec::from([(0, 0), (0, 1), (1, 1), (2, 1), (2, 0)]);
-    let start = find_character_position(&v, 'I').unwrap();
-    let end = find_character_position(&v, 'X').unwrap();
+    let start = find_character_position_matrix(&v, 'I').unwrap();
+    let end = find_character_position_matrix(&v, 'X').unwrap();
     let path = dijkstra(v.clone(), start, end, 1);
     //println!("{:?}", path);
     assert_eq!(path, result_expected);
@@ -225,61 +213,9 @@ fn test_simple_dijkstra_with_two_monster_() {
      */
 
     let result_expected = Vec::from([(2, 0), (2, 1), (1, 1), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (1, 5), (1, 6), (2, 6), (3, 6), (3, 5)]);
-    let start = find_character_position(&v, 'I').unwrap();
-    let end = find_character_position(&v, 'X').unwrap();
+    let start = find_character_position_matrix(&v, 'I').unwrap();
+    let end = find_character_position_matrix(&v, 'X').unwrap();
     let path = dijkstra(v.clone(), start, end, 2);
     //println!("{:?}", path);
     assert_eq!(path, result_expected);
-}
-
-#[test]
-fn should_not_find_character_position() {
-    let matrix = string_to_matrix("ABC\nDEF\nGHI");
-    let result = find_character_position(&matrix, 'X');
-    assert_eq!(result, None);
-}
-
-#[test]
-fn should_find_character_position() {
-    let matrix = string_to_matrix("ABC\nDXF\nGHI");
-    let result = find_character_position(&matrix, 'X');
-    assert_eq!(result, Some((1, 1)));
-}
-
-#[test]
-fn should_find_character_position_at_last_position() {
-    let matrix = string_to_matrix("ABC\nDEF\nGHI\n###\n###\n###\n##X");
-    let result = find_character_position(&matrix, 'X');
-    assert_eq!(result, Some((6, 2)));
-}
-
-
-#[test]
-fn should_return_matrix_with_one_line() {
-    let result = vec![vec!['#', '#', '#']];
-    let string = "###";
-
-    let matrix = string_to_matrix(string);
-
-    assert_eq!(result, matrix);
-}
-
-#[test]
-fn should_return_matrix_with_two_lines() {
-    let result = vec![vec!['#', 'I', '#'], vec!['#', '#', '#']];
-    let string = "#I#\n###";
-
-    let matrix = string_to_matrix(string);
-
-    assert_eq!(result, matrix);
-}
-
-#[test]
-fn should_return_matrix_with_three_lines() {
-    let result = vec![vec!['#', '#', 'I'], vec!['#', 'M', '#'], vec!['#', '#', '#']];
-    let string = "##I\n#M#\n###";
-
-    let matrix = string_to_matrix(string);
-
-    assert_eq!(result, matrix);
 }
